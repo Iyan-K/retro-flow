@@ -43,10 +43,14 @@ export class AuthComponent {
 
   private generateRoomCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const len = chars.length;
+    const limit = 256 - (256 % len);
     let code = '';
-    const values = crypto.getRandomValues(new Uint8Array(6));
-    for (const v of values) {
-      code += chars[v % chars.length];
+    while (code.length < 6) {
+      const byte = crypto.getRandomValues(new Uint8Array(1))[0];
+      if (byte < limit) {
+        code += chars[byte % len];
+      }
     }
     return code;
   }

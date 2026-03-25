@@ -92,7 +92,7 @@ export class RetroService implements OnDestroy {
     await deleteDoc(postRef);
   }
 
-  private stopListening(): void {
+  stopListening(): void {
     if (this.unsubscribe) {
       this.unsubscribe();
       this.unsubscribe = null;

@@ -24,7 +24,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.retroService.ngOnDestroy();
+    this.retroService.stopListening();
   }
 
   onAdd(event: { content: string; lane: PostIt['lane'] }): void {
