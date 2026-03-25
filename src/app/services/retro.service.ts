@@ -1,58 +1,102 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal, computed, OnDestroy } from '@angular/core';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  updateDoc,
+  increment,
+  query,
+  orderBy,
+  Firestore,
+  Unsubscribe,
+} from 'firebase/firestore';
+import { environment } from '../../environments/environment';
 import { PostIt } from '../models/post-it.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RetroService {
-  private readonly postItsSubject = new BehaviorSubject<PostIt[]>([]);
+export class RetroService implements OnDestroy {
+  private readonly app: FirebaseApp;
+  private readonly db: Firestore;
+  private unsubscribe: Unsubscribe | null = null;
+
   private readonly postItsSignal = signal<PostIt[]>([]);
+  private roomId = '';
 
   readonly postIts = this.postItsSignal.asReadonly();
 
   readonly topPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'top')
+    this.postItsSignal().filter((p) => p.lane === 'top'),
   );
 
   readonly tipPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'tip')
+    this.postItsSignal().filter((p) => p.lane === 'tip'),
   );
 
   readonly processPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'process')
+    this.postItsSignal().filter((p) => p.lane === 'process'),
   );
 
-  getPostIts(): Observable<PostIt[]> {
-    return this.postItsSubject.asObservable();
+  constructor() {
+    this.app = initializeApp(environment.firebase);
+    this.db = getFirestore(this.app);
   }
 
-  addPostIt(content: string, lane: PostIt['lane'], author: string): void {
-    const newPostIt: PostIt = {
-      id: crypto.randomUUID(),
+  ngOnDestroy(): void {
+    this.stopListening();
+  }
+
+  listenToRoom(roomId: string): void {
+    this.stopListening();
+    this.roomId = roomId;
+
+    const postsRef = collection(this.db, 'rooms', roomId, 'posts');
+    const q = query(postsRef, orderBy('createdAt', 'asc'));
+
+    this.unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts: PostIt[] = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<PostIt, 'id'>),
+      }));
+      this.postItsSignal.set(posts);
+    });
+  }
+
+  async addPostIt(
+    content: string,
+    lane: PostIt['lane'],
+    author: string,
+  ): Promise<void> {
+    const postsRef = collection(this.db, 'rooms', this.roomId, 'posts');
+    await addDoc(postsRef, {
       authorName: author,
       content,
       lane,
       votes: 0,
-      createdAt: new Date(),
-    };
-
-    const updated = [...this.postItsSignal(), newPostIt];
-    this.postItsSignal.set(updated);
-    this.postItsSubject.next(updated);
+      createdAt: Date.now(),
+    });
   }
 
-  upvote(id: string): void {
-    const updated = this.postItsSignal().map((p) =>
-      p.id === id ? { ...p, votes: p.votes + 1 } : p
-    );
-    this.postItsSignal.set(updated);
-    this.postItsSubject.next(updated);
+  async upvote(id: string): Promise<void> {
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await updateDoc(postRef, { votes: increment(1) });
   }
 
-  deletePostIt(id: string): void {
-    const updated = this.postItsSignal().filter((p) => p.id !== id);
-    this.postItsSignal.set(updated);
-    this.postItsSubject.next(updated);
+  async deletePostIt(id: string): Promise<void> {
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await deleteDoc(postRef);
+  }
+
+  stopListening(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 }
+

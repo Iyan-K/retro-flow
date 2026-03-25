@@ -1,5 +1,5 @@
-@if (username()) {
-  <app-board [username]="username()" />
+@if (username() && roomCode()) {
+  <app-board [username]="username()" [roomCode]="roomCode()" />
 } @else {
   <app-auth (joined)="onJoin()" />
 }
