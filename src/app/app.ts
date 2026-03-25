@@ -16,4 +16,3 @@ export class App {
     this.username.set(localStorage.getItem('retro-user') ?? '');
   }
 }
-
