@@ -11,8 +11,10 @@ import { BoardComponent } from './components/board/board';
 })
 export class App {
   readonly username = signal(localStorage.getItem('retro-user') ?? '');
+  readonly roomCode = signal(localStorage.getItem('retro-room') ?? '');
 
   onJoin(): void {
     this.username.set(localStorage.getItem('retro-user') ?? '');
+    this.roomCode.set(localStorage.getItem('retro-room') ?? '');
   }
 }
