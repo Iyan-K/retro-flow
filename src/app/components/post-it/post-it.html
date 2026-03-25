@@ -1,0 +1,27 @@
+<div
+  class="bg-yellow-200 shadow-lg rounded-lg p-4 rotate-1 transition-transform hover:scale-105 hover:rotate-0 cursor-default"
+>
+  <p class="text-gray-800 text-sm leading-relaxed mb-3">{{ postIt().content }}</p>
+
+  <div class="flex items-center justify-between text-xs text-gray-600">
+    <span class="font-medium">✍️ {{ postIt().authorName }}</span>
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="onVote()"
+        class="flex items-center gap-1 bg-white/60 hover:bg-white rounded px-2 py-1 transition-colors"
+        title="Upvote"
+      >
+        👍 <span class="font-semibold">{{ postIt().votes }}</span>
+      </button>
+
+      <button
+        (click)="onDelete()"
+        class="flex items-center bg-red-100 hover:bg-red-200 rounded px-2 py-1 transition-colors"
+        title="Delete"
+      >
+        🗑️
+      </button>
+    </div>
+  </div>
+</div>
