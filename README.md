@@ -24,7 +24,8 @@ export const environment = {
 };
 ```
 
-5. **Deploy Firestore rules** using the Firebase CLI:
+5. Update `.firebaserc` with your own project ID (replace `retro-flow` with your Firebase project ID).
+6. **Deploy Firestore rules** using the Firebase CLI:
 
 ```bash
 npm install -g firebase-tools
