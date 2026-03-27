@@ -1,10 +1,10 @@
 export const environment = {
   firebase: {
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.firebasestorage.app',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId: 'YOUR_APP_ID',
+    apiKey: 'AIzaSyBd-9GYoN5flSO5FbpCiPJME5DgPZmUce0',
+    authDomain: 'retro-flow.firebaseapp.com',
+    projectId: 'retro-flow',
+    storageBucket: 'retro-flow.firebasestorage.app',
+    messagingSenderId: '487392651020',
+    appId: '1:487392651020:web:aa37f778ebf579decccb29',
   },
 };
