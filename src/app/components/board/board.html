@@ -29,6 +29,15 @@
         </button>
       }
 
+      @if (isOwner() && votingActive()) {
+        <button
+          (click)="onStopVoting()"
+          class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
+        >
+          💬 Back to Discussion
+        </button>
+      }
+
       @if (votingActive()) {
         <span class="glass rounded-lg px-3 py-1 text-sm font-bold text-amber-600">
           Votes left: {{ remainingVotes() }}

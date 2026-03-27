@@ -142,6 +142,11 @@ export class RetroService implements OnDestroy {
     await updateDoc(roomRef, { votingActive: true });
   }
 
+  async stopVoting(): Promise<void> {
+    const roomRef = doc(this.db, 'rooms', this.roomId);
+    await updateDoc(roomRef, { votingActive: false });
+  }
+
   async addPostIt(
     content: string,
     lane: PostIt['lane'],

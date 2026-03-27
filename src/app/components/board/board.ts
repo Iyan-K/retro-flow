@@ -65,6 +65,10 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.retroService.startVoting();
   }
 
+  onStopVoting(): void {
+    this.retroService.stopVoting();
+  }
+
   getInitials(name: string): string {
     return (name || '??').slice(0, 2).toUpperCase();
   }
