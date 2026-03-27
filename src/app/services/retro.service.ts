@@ -31,17 +31,28 @@ export class RetroService implements OnDestroy {
   private roomId = '';
 
   readonly postIts = this.postItsSignal.asReadonly();
+  readonly filterAuthor = signal('');
+
+  readonly uniqueAuthors = computed(() =>
+    [...new Set(this.postItsSignal().map((p) => p.authorName))],
+  );
+
+  private readonly filteredPosts = computed(() => {
+    const author = this.filterAuthor();
+    const posts = this.postItsSignal();
+    return author ? posts.filter((p) => p.authorName === author) : posts;
+  });
 
   readonly topPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'top'),
+    this.filteredPosts().filter((p) => p.lane === 'top'),
   );
 
   readonly tipPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'tip'),
+    this.filteredPosts().filter((p) => p.lane === 'tip'),
   );
 
   readonly processPosts = computed(() =>
-    this.postItsSignal().filter((p) => p.lane === 'process'),
+    this.filteredPosts().filter((p) => p.lane === 'process'),
   );
 
   constructor() {

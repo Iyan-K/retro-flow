@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, input, signal, OnInit, OnDestroy } from '@angular/core';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { PostIt } from '../../models/post-it.model';
@@ -18,6 +18,10 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly topPosts = this.retroService.topPosts;
   readonly tipPosts = this.retroService.tipPosts;
   readonly processPosts = this.retroService.processPosts;
+  readonly uniqueAuthors = this.retroService.uniqueAuthors;
+  readonly filterAuthor = this.retroService.filterAuthor;
+
+  readonly filterOpen = signal(false);
 
   ngOnInit(): void {
     this.retroService.listenToRoom(this.roomCode());
@@ -43,5 +47,23 @@ export class BoardComponent implements OnInit, OnDestroy {
     localStorage.removeItem('retro-user');
     localStorage.removeItem('retro-room');
     window.location.reload();
+  }
+
+  getInitials(name: string): string {
+    return (name || '??').slice(0, 2).toUpperCase();
+  }
+
+  toggleAuthorFilter(author: string): void {
+    this.retroService.filterAuthor.set(
+      this.retroService.filterAuthor() === author ? '' : author,
+    );
+  }
+
+  clearFilter(): void {
+    this.retroService.filterAuthor.set('');
+  }
+
+  toggleFilter(): void {
+    this.filterOpen.update((v) => !v);
   }
 }
