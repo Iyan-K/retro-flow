@@ -14,6 +14,9 @@ export class LaneComponent {
   readonly title = input.required<string>();
   readonly posts = input.required<PostIt[]>();
   readonly laneType = input.required<PostIt['lane']>();
+  readonly votingActive = input(false);
+  readonly username = input('');
+  readonly hasVotesLeft = input(false);
   readonly voted = output<string>();
   readonly deleted = output<string>();
   readonly added = output<{ content: string; lane: PostIt['lane'] }>();

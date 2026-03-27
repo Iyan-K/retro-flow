@@ -7,13 +7,34 @@
     <span class="font-medium">✍️ {{ postIt().authorName }}</span>
 
     <div class="flex items-center gap-2">
-      <button
-        (click)="onVote()"
-        class="flex items-center gap-1 bg-white/50 hover:bg-white/70 rounded-lg px-2 py-1 transition-all text-slate-600 hover:text-slate-800 border border-white/50"
-        title="Upvote"
-      >
-        👍 <span class="font-semibold">{{ postIt().votes }}</span>
-      </button>
+      @if (votingActive()) {
+        <div class="relative group">
+          <button
+            (click)="onVote()"
+            [disabled]="!canVote()"
+            class="flex items-center gap-1 rounded-lg px-2 py-1 transition-all border border-white/50"
+            [class]="alreadyVoted()
+              ? 'bg-purple-200/60 text-purple-700 border-purple-300/50'
+              : canVote()
+                ? 'bg-white/50 hover:bg-white/70 text-slate-600 hover:text-slate-800'
+                : 'bg-white/30 text-slate-400 cursor-not-allowed'"
+          >
+            👍 <span class="font-semibold">{{ voteCount() }}</span>
+          </button>
+
+          @if (voterNames().length) {
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
+              <div class="glass-light rounded-xl px-3 py-2 shadow-lg border border-white/50 text-xs text-slate-700 whitespace-nowrap">
+                <p class="font-semibold text-slate-500 mb-1">Voted by:</p>
+                @for (voter of voterNames(); track voter) {
+                  <p>{{ voter }}</p>
+                }
+              </div>
+              <div class="w-2 h-2 bg-white/55 rotate-45 -mt-1 border-r border-b border-white/50"></div>
+            </div>
+          }
+        </div>
+      }
 
       <button
         (click)="onDelete()"

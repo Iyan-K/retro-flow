@@ -24,6 +24,9 @@
     @for (post of posts(); track post.id) {
       <app-post-it
         [postIt]="post"
+        [votingActive]="votingActive()"
+        [username]="username()"
+        [hasVotesLeft]="hasVotesLeft()"
         (voted)="onVote($event)"
         (deleted)="onDelete($event)"
       />

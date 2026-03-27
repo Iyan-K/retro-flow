@@ -20,10 +20,21 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly processPosts = this.retroService.processPosts;
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
+  readonly isOwner = this.retroService.isOwner;
+  readonly votingActive = this.retroService.votingActive;
+  readonly remainingVotes = this.retroService.remainingVotes;
 
   readonly filterOpen = signal(false);
 
   ngOnInit(): void {
+    this.retroService.currentUser.set(this.username());
+
+    const isCreator = localStorage.getItem('retro-is-creator') === 'true';
+    if (isCreator) {
+      localStorage.removeItem('retro-is-creator');
+      this.retroService.createRoom(this.roomCode(), this.username());
+    }
+
     this.retroService.listenToRoom(this.roomCode());
   }
 
@@ -46,7 +57,12 @@ export class BoardComponent implements OnInit, OnDestroy {
   onLeave(): void {
     localStorage.removeItem('retro-user');
     localStorage.removeItem('retro-room');
+    localStorage.removeItem('retro-is-creator');
     window.location.reload();
+  }
+
+  onStartVoting(): void {
+    this.retroService.startVoting();
   }
 
   getInitials(name: string): string {
