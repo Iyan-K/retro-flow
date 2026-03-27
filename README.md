@@ -4,7 +4,7 @@ A collaborative retrospective board built with [Angular](https://angular.dev) an
 
 ## Firebase Setup (Required)
 
-RetroFlow uses Firebase Firestore as a free real-time backend. Follow these steps to connect your own Firebase project:
+RetroFlow uses Firebase Firestore as a free real-time backend with offline persistence. Follow these steps to connect your own Firebase project:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project (no billing required).
 2. In your project, go to **Build → Firestore Database** and click **Create database**. Choose **Start in test mode** for development.
@@ -24,20 +24,22 @@ export const environment = {
 };
 ```
 
-5. **(Recommended)** In the Firestore Console, go to **Rules** and set:
+5. Update `.firebaserc` with your own project ID (replace `retro-flow` with your Firebase project ID).
+6. **Deploy Firestore rules** using the Firebase CLI:
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /rooms/{roomId}/posts/{postId} {
-      allow read, write: if true;
-    }
-  }
-}
+```bash
+npm install -g firebase-tools
+firebase login
+firebase deploy --only firestore
 ```
 
-> **Note:** The test-mode rules above are suitable for development. For production use, add more restrictive rules.
+This deploys the `firestore.rules` file included in the repository. Alternatively, you can paste the rules manually via the [Firestore Console](https://console.firebase.google.com/) under **Rules**.
+
+> **Note:** The test-mode rules are suitable for development. For production use, add more restrictive rules.
+
+### Offline Persistence
+
+Firestore offline persistence is enabled by default. This means data is cached locally in IndexedDB so the app works even when the network is temporarily unavailable. Changes made offline are automatically synced when the connection is restored.
 
 ## Development server
 

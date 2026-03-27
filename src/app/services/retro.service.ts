@@ -1,7 +1,9 @@
 import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   addDoc,
   deleteDoc,
@@ -44,7 +46,11 @@ export class RetroService implements OnDestroy {
 
   constructor() {
     this.app = initializeApp(environment.firebase);
-    this.db = getFirestore(this.app);
+    this.db = initializeFirestore(this.app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
   }
 
   ngOnDestroy(): void {
@@ -58,13 +64,19 @@ export class RetroService implements OnDestroy {
     const postsRef = collection(this.db, 'rooms', roomId, 'posts');
     const q = query(postsRef, orderBy('createdAt', 'asc'));
 
-    this.unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts: PostIt[] = snapshot.docs.map((d) => ({
-        id: d.id,
-        ...(d.data() as Omit<PostIt, 'id'>),
-      }));
-      this.postItsSignal.set(posts);
-    });
+    this.unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const posts: PostIt[] = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as Omit<PostIt, 'id'>),
+        }));
+        this.postItsSignal.set(posts);
+      },
+      (error) => {
+        console.error('Firestore listener error:', error);
+      },
+    );
   }
 
   async addPostIt(
