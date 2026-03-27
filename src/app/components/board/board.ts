@@ -26,13 +26,17 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   readonly filterOpen = signal(false);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.retroService.currentUser.set(this.username());
 
     const isCreator = localStorage.getItem('retro-is-creator') === 'true';
     if (isCreator) {
       localStorage.removeItem('retro-is-creator');
-      this.retroService.createRoom(this.roomCode(), this.username());
+      try {
+        await this.retroService.createRoom(this.roomCode(), this.username());
+      } catch (e) {
+        console.error('Failed to create room:', e);
+      }
     }
 
     this.retroService.listenToRoom(this.roomCode());
