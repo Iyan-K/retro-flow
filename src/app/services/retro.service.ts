@@ -167,14 +167,13 @@ export class RetroService implements OnDestroy {
     const post = this.postItsSignal().find((p) => p.id === id);
     if (!post) return;
 
-    const voters = [...(post.voters ?? [])];
+    let voters = [...(post.voters ?? [])];
     const hasVoted = voters.includes(user);
 
     if (this.remainingVotes() > 0) {
       voters.push(user);
     } else if (hasVoted) {
-      const idx = voters.indexOf(user);
-      if (idx !== -1) voters.splice(idx, 1);
+      voters = voters.filter((v) => v !== user);
     } else {
       return;
     }
