@@ -11,8 +11,6 @@ import {
   onSnapshot,
   updateDoc,
   setDoc,
-  arrayUnion,
-  arrayRemove,
   query,
   orderBy,
   Firestore,
@@ -48,11 +46,11 @@ export class RetroService implements OnDestroy {
   readonly remainingVotes = computed(() => {
     const user = this.currentUser();
     if (!user) return 0;
-    return (
-      RetroService.MAX_VOTES_PER_USER -
-      this.postItsSignal().filter((p) => (p.voters ?? []).includes(user))
-        .length
+    const totalVotesCast = this.postItsSignal().reduce(
+      (sum, p) => sum + (p.voters ?? []).filter((v) => v === user).length,
+      0,
     );
+    return RetroService.MAX_VOTES_PER_USER - totalVotesCast;
   });
 
   readonly postIts = this.postItsSignal.asReadonly();
@@ -162,11 +160,22 @@ export class RetroService implements OnDestroy {
     const user = this.currentUser();
     if (!user) return;
     const post = this.postItsSignal().find((p) => p.id === id);
-    const hasVoted = post && (post.voters ?? []).includes(user);
+    if (!post) return;
+
+    const voters = [...(post.voters ?? [])];
+    const hasVoted = voters.includes(user);
+
+    if (this.remainingVotes() > 0) {
+      voters.push(user);
+    } else if (hasVoted) {
+      const idx = voters.indexOf(user);
+      if (idx !== -1) voters.splice(idx, 1);
+    } else {
+      return;
+    }
+
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
-    await updateDoc(postRef, {
-      voters: hasVoted ? arrayRemove(user) : arrayUnion(user),
-    });
+    await updateDoc(postRef, { voters });
   }
 
   async deletePostIt(id: string): Promise<void> {
