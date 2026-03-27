@@ -39,6 +39,11 @@
 }
 
 /* Custom scrollbar for glass theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
