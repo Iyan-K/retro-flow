@@ -25,6 +25,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly remainingVotes = this.retroService.remainingVotes;
 
   readonly filterOpen = signal(false);
+  readonly copied = signal(false);
 
   ngOnInit(): void {
     this.retroService.currentUser.set(this.username());
@@ -52,6 +53,20 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onDelete(id: string): void {
     this.retroService.deletePostIt(id);
+  }
+
+  onShare(): void {
+    const url = new URL(window.location.href);
+    url.searchParams.set('room', this.roomCode());
+    navigator.clipboard.writeText(url.toString()).then(
+      () => {
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 2000);
+      },
+      () => {
+        /* clipboard write failed – silently ignore */
+      },
+    );
   }
 
   onLeave(): void {
