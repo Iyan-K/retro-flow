@@ -4,5 +4,6 @@ export interface PostIt {
   content: string;
   lane: 'top' | 'tip' | 'process';
   votes: number;
+  voters: string[];
   createdAt: number;
 }

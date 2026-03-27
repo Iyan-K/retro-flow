@@ -27,6 +27,7 @@ export class AuthComponent {
       const room = this.generateRoomCode();
       localStorage.setItem('retro-user', name);
       localStorage.setItem('retro-room', room);
+      localStorage.setItem('retro-is-creator', 'true');
       this.joined.emit();
     }
   }
