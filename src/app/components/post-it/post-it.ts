@@ -20,7 +20,7 @@ export class PostItComponent {
   );
 
   readonly canVote = computed(
-    () => this.votingActive() && this.hasVotesLeft() && !this.alreadyVoted(),
+    () => this.votingActive() && (this.hasVotesLeft() || this.alreadyVoted()),
   );
 
   readonly voterNames = computed(() => this.postIt().voters ?? []);

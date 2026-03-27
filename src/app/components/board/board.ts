@@ -47,7 +47,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   onVote(id: string): void {
-    this.retroService.upvote(id);
+    this.retroService.toggleVote(id);
   }
 
   onDelete(id: string): void {

@@ -12,6 +12,7 @@ import {
   updateDoc,
   setDoc,
   arrayUnion,
+  arrayRemove,
   query,
   orderBy,
   Firestore,
@@ -157,12 +158,14 @@ export class RetroService implements OnDestroy {
     });
   }
 
-  async upvote(id: string): Promise<void> {
+  async toggleVote(id: string): Promise<void> {
     const user = this.currentUser();
     if (!user) return;
+    const post = this.postItsSignal().find((p) => p.id === id);
+    const hasVoted = post && (post.voters ?? []).includes(user);
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
     await updateDoc(postRef, {
-      voters: arrayUnion(user),
+      voters: hasVoted ? arrayRemove(user) : arrayUnion(user),
     });
   }
 
