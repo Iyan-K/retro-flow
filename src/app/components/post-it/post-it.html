@@ -26,7 +26,7 @@
             <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
               <div class="glass-light rounded-xl px-3 py-2 shadow-lg border border-white/50 text-xs text-slate-700 whitespace-nowrap">
                 <p class="font-semibold text-slate-500 mb-1">Voted by:</p>
-                @for (voter of voterNames(); track voter) {
+                @for (voter of uniqueVoterSummary(); track $index) {
                   <p>{{ voter }}</p>
                 }
               </div>

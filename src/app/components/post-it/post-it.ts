@@ -27,6 +27,17 @@ export class PostItComponent {
 
   readonly voteCount = computed(() => this.voterNames().length);
 
+  readonly uniqueVoterSummary = computed(() => {
+    const voters = this.voterNames();
+    const counts = new Map<string, number>();
+    for (const v of voters) {
+      counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+    return [...counts.entries()].map(([name, count]) =>
+      count > 1 ? `${name} (×${count})` : name,
+    );
+  });
+
   onVote(): void {
     if (this.canVote()) {
       this.voted.emit(this.postIt().id);
