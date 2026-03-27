@@ -1,14 +1,14 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-  <header class="bg-white shadow-sm py-4 px-6 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-800">🗒️ RetroFlow</h1>
+<div class="min-h-screen bg-animated-gradient">
+  <header class="glass border-t-0 border-x-0 py-4 px-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-white">🗒️ RetroFlow</h1>
     <div class="flex items-center gap-4">
-      <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-sm font-mono font-bold">
+      <span class="glass rounded-lg px-3 py-1 text-sm font-mono font-bold text-purple-300">
         Room: {{ roomCode() }}
       </span>
-      <span class="text-sm text-gray-500">Logged in as <strong class="text-gray-700">{{ username() }}</strong></span>
+      <span class="text-sm text-white/50">Logged in as <strong class="text-white/80">{{ username() }}</strong></span>
       <button
         (click)="onLeave()"
-        class="text-sm text-red-500 hover:text-red-700 transition-colors"
+        class="text-sm text-red-400/80 hover:text-red-300 transition-colors"
       >
         Leave
       </button>

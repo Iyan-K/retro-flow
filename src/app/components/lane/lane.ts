@@ -23,11 +23,11 @@ export class LaneComponent {
   get headerColor(): string {
     switch (this.laneType()) {
       case 'top':
-        return 'bg-green-500';
+        return 'bg-emerald-500/40';
       case 'tip':
-        return 'bg-blue-500';
+        return 'bg-sky-500/40';
       case 'process':
-        return 'bg-purple-500';
+        return 'bg-purple-500/40';
     }
   }
 
