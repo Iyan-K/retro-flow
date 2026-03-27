@@ -25,7 +25,7 @@ export class PostItComponent {
 
   readonly voterNames = computed(() => this.postIt().voters ?? []);
 
-  readonly voteCount = computed(() => this.voterNames().length || this.postIt().votes || 0);
+  readonly voteCount = computed(() => this.voterNames().length);
 
   onVote(): void {
     if (this.canVote()) {

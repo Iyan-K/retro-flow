@@ -11,7 +11,6 @@ import {
   onSnapshot,
   updateDoc,
   setDoc,
-  increment,
   arrayUnion,
   query,
   orderBy,
@@ -25,6 +24,8 @@ import { PostIt } from '../models/post-it.model';
   providedIn: 'root',
 })
 export class RetroService implements OnDestroy {
+  private static readonly MAX_VOTES_PER_USER = 3;
+
   private readonly app: FirebaseApp;
   private readonly db: Firestore;
   private unsubPosts: Unsubscribe | null = null;
@@ -47,7 +48,7 @@ export class RetroService implements OnDestroy {
     const user = this.currentUser();
     if (!user) return 0;
     return (
-      3 -
+      RetroService.MAX_VOTES_PER_USER -
       this.postItsSignal().filter((p) => (p.voters ?? []).includes(user))
         .length
     );
@@ -161,7 +162,6 @@ export class RetroService implements OnDestroy {
     if (!user) return;
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
     await updateDoc(postRef, {
-      votes: increment(1),
       voters: arrayUnion(user),
     });
   }
