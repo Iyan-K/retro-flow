@@ -14,7 +14,7 @@
             [disabled]="!canVote()"
             class="flex items-center gap-1 rounded-lg px-2 py-1 transition-all border border-white/50"
             [class]="alreadyVoted()
-              ? 'bg-purple-200/60 text-purple-700 border-purple-300/50'
+              ? 'bg-purple-200/60 text-purple-700 border-purple-300/50 hover:bg-purple-300/60'
               : canVote()
                 ? 'bg-white/50 hover:bg-white/70 text-slate-600 hover:text-slate-800'
                 : 'bg-white/30 text-slate-400 cursor-not-allowed'"
