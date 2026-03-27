@@ -36,13 +36,15 @@
         </div>
       }
 
-      <button
-        (click)="onDelete()"
-        class="flex items-center bg-red-100/60 hover:bg-red-200/70 rounded-lg px-2 py-1 transition-all text-red-500/80 hover:text-red-600 border border-red-200/40"
-        title="Delete"
-      >
-        🗑️
-      </button>
+      @if (!votingActive()) {
+        <button
+          (click)="onDelete()"
+          class="flex items-center bg-red-100/60 hover:bg-red-200/70 rounded-lg px-2 py-1 transition-all text-red-500/80 hover:text-red-600 border border-red-200/40"
+          title="Delete"
+        >
+          🗑️
+        </button>
+      }
     </div>
   </div>
 </div>
