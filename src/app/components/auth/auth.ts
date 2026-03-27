@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, output, signal, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-auth',
@@ -6,10 +6,18 @@ import { Component, output, signal } from '@angular/core';
   templateUrl: './auth.html',
   styleUrl: './auth.css',
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
   readonly username = signal('');
   readonly roomCode = signal('');
   readonly joined = output<void>();
+
+  ngOnInit(): void {
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) {
+      this.roomCode.set(room.trim().toUpperCase());
+    }
+  }
 
   onJoin(): void {
     const name = this.username().trim();
@@ -17,7 +25,16 @@ export class AuthComponent {
     if (name && room) {
       localStorage.setItem('retro-user', name);
       localStorage.setItem('retro-room', room);
+      this.clearRoomQueryParam();
       this.joined.emit();
+    }
+  }
+
+  private clearRoomQueryParam(): void {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('room')) {
+      url.searchParams.delete('room');
+      window.history.replaceState({}, '', url.toString());
     }
   }
 
