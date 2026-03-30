@@ -37,11 +37,11 @@ export class LaneComponent {
   get emptyMessage(): string {
     switch (this.laneType()) {
       case 'top':
-        return 'Nog geen notities. Wat ging er goed? Bijvoorbeeld: \'De samenwerking in het team was top!\'';
+        return 'Nog geen notities. Wat ging er goed? Bijvoorbeeld: \'De samenwerking in het team was top!\', \'De demo aan de stakeholders ging soepel.\', \'We hebben de sprint op tijd afgerond.\'';
       case 'tip':
-        return 'Nog geen notities. Heb je tips? Bijvoorbeeld: \'Meer pair programming sessies plannen.\'';
+        return 'Nog geen notities. Heb je tips? Bijvoorbeeld: \'Meer pair programming sessies plannen.\', \'Vaker korte feedback-momenten inlassen.\', \'User stories beter opsplitsen voor de sprint.\'';
       case 'process':
-        return 'Nog geen notities. Wat kan beter in het proces? Bijvoorbeeld: \'Stand-ups korter en meer to-the-point houden.\'';
+        return 'Nog geen notities. Wat kan beter in het proces? Bijvoorbeeld: \'Stand-ups korter en meer to-the-point houden.\', \'Duidelijkere Definition of Done afspreken.\', \'Minder context-switching tussen taken.\'';
     }
   }
 
