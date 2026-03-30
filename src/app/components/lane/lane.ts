@@ -39,7 +39,7 @@ export class LaneComponent {
       case 'top':
         return 'Nog geen notities. Wat ging er goed? Bijvoorbeeld: \'De samenwerking in het team was top!\'';
       case 'tip':
-        return 'Nog geen notities. Heb je tips of ideeën? Bijvoorbeeld: \'Meer pair programming sessies plannen.\'';
+        return 'Nog geen notities. Heb je tips? Bijvoorbeeld: \'Meer pair programming sessies plannen.\'';
       case 'process':
         return 'Nog geen notities. Wat kan beter in het proces? Bijvoorbeeld: \'Stand-ups korter en meer to-the-point houden.\'';
     }
