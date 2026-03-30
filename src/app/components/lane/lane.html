@@ -33,7 +33,7 @@
     }
 
     @if (posts().length === 0) {
-      <p class="text-slate-400 text-center text-sm italic py-4">Nog geen notities. Deel je gedachten, feedback of ideeën!</p>
+      <p class="text-slate-400 text-center text-sm italic py-4">{{ emptyMessage }}</p>
     }
   </div>
 </div>
