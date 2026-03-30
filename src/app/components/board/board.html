@@ -3,15 +3,15 @@
     <h1 class="text-2xl font-bold text-slate-800">🗒️ RetroFlow</h1>
     <div class="flex items-center gap-4">
       <span class="glass rounded-lg px-3 py-1 text-sm font-mono font-bold text-purple-600">
-        Room: {{ roomCode() }}
+        Kamer: {{ roomCode() }}
       </span>
 
       <button
         (click)="onShare()"
         class="glass rounded-lg px-3 py-1 text-sm font-semibold text-purple-600 hover:bg-white/50 transition-all cursor-pointer"
-        title="Copy share link"
+        title="Kopieer deellink"
       >
-        {{ copied() ? '✅ Copied!' : '🔗 Share' }}
+        {{ copied() ? '✅ Gekopieerd!' : '🔗 Delen' }}
       </button>
 
       <div class="flex items-center -space-x-2">
@@ -26,14 +26,14 @@
         }
       </div>
 
-      <span class="text-sm text-slate-500">Logged in as <strong class="text-slate-700">{{ username() }}</strong></span>
+      <span class="text-sm text-slate-500">Ingelogd als <strong class="text-slate-700">{{ username() }}</strong></span>
 
       @if (isOwner() && !votingActive()) {
         <button
           (click)="onStartVoting()"
           class="bg-amber-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
         >
-          🗳️ Time for Voting
+          🗳️ Tijd om te stemmen
         </button>
       }
 
@@ -42,13 +42,13 @@
           (click)="onStopVoting()"
           class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
         >
-          💬 Back to Discussion
+          💬 Terug naar discussie
         </button>
       }
 
       @if (votingActive()) {
         <span class="glass rounded-lg px-3 py-1 text-sm font-bold text-amber-600">
-          Votes left: {{ remainingVotes() }}
+          Stemmen over: {{ remainingVotes() }}
         </span>
       }
 
@@ -56,7 +56,7 @@
         (click)="onLeave()"
         class="text-sm text-red-500/80 hover:text-red-600 transition-colors"
       >
-        Leave
+        Verlaten
       </button>
     </div>
   </header>
@@ -64,7 +64,7 @@
   <main class="p-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <app-lane
-        title="👍 What Went Well"
+        title="👍 Wat ging goed"
         laneType="top"
         [posts]="topPosts()"
         [votingActive]="votingActive()"
@@ -76,7 +76,7 @@
       />
 
       <app-lane
-        title="💡 Tips & Ideas"
+        title="💡 Tips & Ideeën"
         laneType="tip"
         [posts]="tipPosts()"
         [votingActive]="votingActive()"
@@ -88,7 +88,7 @@
       />
 
       <app-lane
-        title="⚙️ Process Optimization"
+        title="⚙️ Procesverbetering"
         laneType="process"
         [posts]="processPosts()"
         [votingActive]="votingActive()"
@@ -135,7 +135,7 @@
     <button
       (click)="toggleFilter()"
       class="w-12 h-12 rounded-full bg-purple-500/80 backdrop-blur-sm text-white flex items-center justify-center text-lg shadow-lg hover:bg-purple-500 transition-all border border-purple-400/30"
-      title="Filter by user"
+      title="Filter op gebruiker"
     >
       🔍
     </button>
