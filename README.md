@@ -2,6 +2,54 @@
 
 A collaborative retrospective board built with [Angular](https://angular.dev) and [Firebase](https://firebase.google.com). Multiple users can join a shared room and add, vote on, and delete sticky-note post-its in real time.
 
+**GitHub:** [https://github.com/Iyan-K/retro-flow](https://github.com/Iyan-K/retro-flow)
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [Angular 21](https://angular.dev) (standalone components) |
+| Backend / Database | [Firebase Firestore](https://firebase.google.com/docs/firestore) (real-time, serverless) |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com) |
+| Language | TypeScript 5.9 |
+| Package Manager | npm |
+
+## Project Structure
+
+```
+src/
+├── environments/
+│   └── environment.ts          # Firebase config (API keys, project ID)
+├── app/
+│   ├── app.ts                  # Root component (standalone)
+│   ├── app.html                # Root template
+│   ├── app.config.ts           # App-level providers
+│   ├── components/
+│   │   ├── auth/               # Login & room join/create screen
+│   │   ├── board/              # Main retro board (hosts lanes)
+│   │   ├── lane/               # A single column (e.g. "What Went Well")
+│   │   └── post-it/            # Individual sticky-note card
+│   ├── models/
+│   │   └── post-it.model.ts    # PostIt data interface
+│   └── services/
+│       └── retro.service.ts    # Firestore CRUD, real-time listeners, signals
+├── index.html
+├── main.ts
+└── styles.css                  # Global styles (Tailwind directives)
+
+firebase.json                   # Firebase project config (Firestore rules path)
+.firebaserc                     # Default Firebase project alias
+firestore.rules                 # Firestore security rules
+firestore.indexes.json          # Firestore composite indexes
+```
+
+### Key Architecture Decisions
+
+- **Firebase SDK (not @angular/fire)** — the app uses the plain `firebase` JS SDK directly for full control over Firestore initialization.
+- **Offline persistence** — `initializeFirestore` is configured with `persistentLocalCache` and `persistentMultipleTabManager`, so data is cached in IndexedDB and the app works offline.
+- **Angular Signals** — UI state (posts, votes, room owner) is managed with Angular signals and computed values instead of RxJS observables.
+- **Firestore data model** — data lives under `rooms/{roomCode}` (room metadata) and `rooms/{roomCode}/posts/{postId}` (sticky notes).
+
 ## Firebase Setup (Required)
 
 RetroFlow uses Firebase Firestore as a free real-time backend with offline persistence. Follow these steps to connect your own Firebase project:
