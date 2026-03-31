@@ -187,14 +187,18 @@ export class RetroService implements OnDestroy {
     const user = this.currentUser();
     if (!user || !this.roomId) return;
     const roomRef = doc(this.db, 'rooms', this.roomId);
-    await updateDoc(roomRef, { members: arrayUnion(user) });
+    await setDoc(roomRef, { members: arrayUnion(user) }, { merge: true });
   }
 
   async markReady(): Promise<void> {
     const user = this.currentUser();
     if (!user || !this.roomId) return;
     const roomRef = doc(this.db, 'rooms', this.roomId);
-    await updateDoc(roomRef, { readyUsers: arrayUnion(user) });
+    await setDoc(
+      roomRef,
+      { readyUsers: arrayUnion(user) },
+      { merge: true },
+    );
   }
 
   async addPostIt(

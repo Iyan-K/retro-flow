@@ -19,7 +19,7 @@
           <div
             class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white cursor-default transition-transform hover:scale-110 hover:z-10"
             [class]="
-              (isUserReady(member) ? 'border-3 border-green-400 ' : 'border-2 border-white/60 ') +
+              (isUserReady(member) ? 'border-4 border-green-400 ' : 'border-2 border-white/60 ') +
               (member === username() ? 'bg-purple-500' : 'bg-slate-500')
             "
             [title]="member + (isUserReady(member) ? ' ✓ Klaar' : '')"
