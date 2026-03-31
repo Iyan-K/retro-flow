@@ -14,6 +14,7 @@ import {
   query,
   orderBy,
   arrayUnion,
+  arrayRemove,
   Firestore,
   Unsubscribe,
 } from 'firebase/firestore';
@@ -199,6 +200,13 @@ export class RetroService implements OnDestroy {
       { readyUsers: arrayUnion(user) },
       { merge: true },
     );
+  }
+
+  async unmarkReady(): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !this.roomId) return;
+    const roomRef = doc(this.db, 'rooms', this.roomId);
+    await updateDoc(roomRef, { readyUsers: arrayRemove(user) });
   }
 
   async addPostIt(
