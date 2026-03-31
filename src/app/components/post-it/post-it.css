@@ -2,3 +2,8 @@
   display: block;
   margin-top: 1rem;
 }
+
+.blurred-content {
+  filter: blur(5px);
+  user-select: none;
+}

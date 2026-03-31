@@ -25,6 +25,7 @@
       <app-post-it
         [postIt]="post"
         [votingActive]="votingActive()"
+        [phase]="phase()"
         [username]="username()"
         [hasVotesLeft]="hasVotesLeft()"
         (voted)="onVote($event)"

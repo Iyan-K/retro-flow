@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PostIt } from '../../models/post-it.model';
+import { PostIt, RoomPhase } from '../../models/post-it.model';
 import { PostItComponent } from '../post-it/post-it';
 
 @Component({
@@ -15,6 +15,7 @@ export class LaneComponent {
   readonly posts = input.required<PostIt[]>();
   readonly laneType = input.required<PostIt['lane']>();
   readonly votingActive = input(false);
+  readonly phase = input<RoomPhase>('writing');
   readonly username = input('');
   readonly hasVotesLeft = input(false);
   readonly voted = output<string>();

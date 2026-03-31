@@ -28,18 +28,33 @@
 
       <span class="text-sm text-slate-500">Ingelogd als <strong class="text-slate-700">{{ username() }}</strong></span>
 
-      @if (isOwner() && !votingActive()) {
+      @if (isOwner() && phase() === 'writing') {
         <button
-          (click)="onStartVoting()"
+          (click)="onSetPhase('discussing')"
+          class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
+        >
+          💬 Naar discussie
+        </button>
+      }
+
+      @if (isOwner() && phase() === 'discussing') {
+        <button
+          (click)="onSetPhase('writing')"
+          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+        >
+          ✏️ Terug naar schrijven
+        </button>
+        <button
+          (click)="onSetPhase('voting')"
           class="bg-amber-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
         >
           🗳️ Tijd om te stemmen
         </button>
       }
 
-      @if (isOwner() && votingActive()) {
+      @if (isOwner() && phase() === 'voting') {
         <button
-          (click)="onStopVoting()"
+          (click)="onSetPhase('discussing')"
           class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
         >
           💬 Terug naar discussie
@@ -68,6 +83,7 @@
         laneType="top"
         [posts]="topPosts()"
         [votingActive]="votingActive()"
+        [phase]="phase()"
         [username]="username()"
         [hasVotesLeft]="remainingVotes() > 0"
         (added)="onAdd($event)"
@@ -80,6 +96,7 @@
         laneType="tip"
         [posts]="tipPosts()"
         [votingActive]="votingActive()"
+        [phase]="phase()"
         [username]="username()"
         [hasVotesLeft]="remainingVotes() > 0"
         (added)="onAdd($event)"
@@ -92,6 +109,7 @@
         laneType="process"
         [posts]="processPosts()"
         [votingActive]="votingActive()"
+        [phase]="phase()"
         [username]="username()"
         [hasVotesLeft]="remainingVotes() > 0"
         (added)="onAdd($event)"
