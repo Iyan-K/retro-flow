@@ -24,6 +24,10 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly votingActive = this.retroService.votingActive;
   readonly phase = this.retroService.phase;
   readonly remainingVotes = this.retroService.remainingVotes;
+  readonly roomMembers = this.retroService.roomMembers;
+  readonly readyUsers = this.retroService.readyUsers;
+  readonly isCurrentUserReady = this.retroService.isCurrentUserReady;
+  readonly allUsersReady = this.retroService.allUsersReady;
 
   readonly filterOpen = signal(false);
   readonly copied = signal(false);
@@ -38,6 +42,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
 
     this.retroService.listenToRoom(this.roomCode());
+    this.retroService.joinRoom();
   }
 
   ngOnDestroy(): void {
@@ -79,6 +84,14 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onSetPhase(phase: RoomPhase): void {
     this.retroService.setPhase(phase);
+  }
+
+  onMarkReady(): void {
+    this.retroService.markReady();
+  }
+
+  isUserReady(author: string): boolean {
+    return this.readyUsers().includes(author);
   }
 
   getInitials(name: string): string {

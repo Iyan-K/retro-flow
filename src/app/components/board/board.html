@@ -15,14 +15,20 @@
       </button>
 
       <div class="flex items-center -space-x-2">
-        @for (author of uniqueAuthors(); track author) {
+        @for (member of roomMembers(); track member) {
           <div
-            class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white/60 cursor-default transition-transform hover:scale-110 hover:z-10"
-            [class]="author === username() ? 'bg-purple-500' : 'bg-slate-500'"
-            [title]="author"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white cursor-default transition-transform hover:scale-110 hover:z-10"
+            [class]="
+              (isUserReady(member) ? 'border-4 border-green-400 ' : 'border-2 border-white/60 ') +
+              (member === username() ? 'bg-purple-500' : 'bg-slate-500')
+            "
+            [title]="member + (isUserReady(member) ? ' ✓ Klaar' : '')"
           >
-            {{ getInitials(author) }}
+            {{ getInitials(member) }}
           </div>
+        }
+        @if (allUsersReady()) {
+          <div class="ml-2 text-green-500 text-xl" title="Iedereen is klaar!">✅</div>
         }
       </div>
 
@@ -59,6 +65,30 @@
         >
           💬 Terug naar discussie
         </button>
+      }
+
+      @if (!isOwner() && phase() === 'writing' && !isCurrentUserReady()) {
+        <button
+          (click)="onMarkReady()"
+          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+        >
+          ✅ Klaar met schrijven
+        </button>
+      }
+
+      @if (!isOwner() && phase() === 'voting' && !isCurrentUserReady()) {
+        <button
+          (click)="onMarkReady()"
+          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+        >
+          ✅ Klaar met stemmen
+        </button>
+      }
+
+      @if (!isOwner() && isCurrentUserReady()) {
+        <span class="glass rounded-lg px-3 py-1 text-sm font-bold text-green-600">
+          ✅ Klaar!
+        </span>
       }
 
       @if (votingActive()) {
