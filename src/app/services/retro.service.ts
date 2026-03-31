@@ -65,7 +65,18 @@ export class RetroService implements OnDestroy {
   private readonly filteredPosts = computed(() => {
     const author = this.filterAuthor();
     const posts = this.postItsSignal();
-    return author ? posts.filter((p) => p.authorName === author) : posts;
+    const filtered = author
+      ? posts.filter((p) => p.authorName === author)
+      : posts;
+
+    // Sort so the current user's post-its always appear first
+    const user = this.currentUser();
+    if (!user) return filtered;
+    return [...filtered].sort((a, b) => {
+      const aIsOther = a.authorName === user ? 0 : 1;
+      const bIsOther = b.authorName === user ? 0 : 1;
+      return aIsOther - bIsOther;
+    });
   });
 
   readonly topPosts = computed(() =>
