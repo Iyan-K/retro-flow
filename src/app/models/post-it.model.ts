@@ -1,3 +1,5 @@
+export type RoomPhase = 'writing' | 'discussing' | 'voting';
+
 export interface PostIt {
   id: string;
   authorName: string;

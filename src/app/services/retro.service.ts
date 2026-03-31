@@ -17,7 +17,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
-import { PostIt } from '../models/post-it.model';
+import { PostIt, RoomPhase } from '../models/post-it.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +35,9 @@ export class RetroService implements OnDestroy {
 
   readonly currentUser = signal('');
   readonly roomOwner = signal('');
-  readonly votingActive = signal(false);
+  readonly phase = signal<RoomPhase>('writing');
+
+  readonly votingActive = computed(() => this.phase() === 'voting');
 
   readonly isOwner = computed(
     () =>
@@ -93,7 +95,7 @@ export class RetroService implements OnDestroy {
 
   async createRoom(roomId: string, owner: string): Promise<void> {
     const roomRef = doc(this.db, 'rooms', roomId);
-    await setDoc(roomRef, { owner, votingActive: false });
+    await setDoc(roomRef, { owner, phase: 'writing' as RoomPhase });
   }
 
   listenToRoom(roomId: string): void {
@@ -108,7 +110,12 @@ export class RetroService implements OnDestroy {
         const data = snapshot.data();
         if (data) {
           this.roomOwner.set((data['owner'] as string) ?? '');
-          this.votingActive.set((data['votingActive'] as boolean) ?? false);
+          if (data['phase']) {
+            this.phase.set(data['phase'] as RoomPhase);
+          } else {
+            // Backward compatibility: map old votingActive boolean to phase
+            this.phase.set(data['votingActive'] ? 'voting' : 'discussing');
+          }
         }
       },
       (error) => {
@@ -135,14 +142,9 @@ export class RetroService implements OnDestroy {
     );
   }
 
-  async startVoting(): Promise<void> {
+  async setPhase(phase: RoomPhase): Promise<void> {
     const roomRef = doc(this.db, 'rooms', this.roomId);
-    await updateDoc(roomRef, { votingActive: true });
-  }
-
-  async stopVoting(): Promise<void> {
-    const roomRef = doc(this.db, 'rooms', this.roomId);
-    await updateDoc(roomRef, { votingActive: false });
+    await updateDoc(roomRef, { phase });
   }
 
   async addPostIt(

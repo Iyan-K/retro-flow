@@ -1,7 +1,7 @@
 import { Component, inject, input, signal, OnInit, OnDestroy } from '@angular/core';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
-import { PostIt } from '../../models/post-it.model';
+import { PostIt, RoomPhase } from '../../models/post-it.model';
 
 @Component({
   selector: 'app-board',
@@ -22,6 +22,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
   readonly votingActive = this.retroService.votingActive;
+  readonly phase = this.retroService.phase;
   readonly remainingVotes = this.retroService.remainingVotes;
 
   readonly filterOpen = signal(false);
@@ -76,12 +77,8 @@ export class BoardComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
-  onStartVoting(): void {
-    this.retroService.startVoting();
-  }
-
-  onStopVoting(): void {
-    this.retroService.stopVoting();
+  onSetPhase(phase: RoomPhase): void {
+    this.retroService.setPhase(phase);
   }
 
   getInitials(name: string): string {

@@ -1,7 +1,10 @@
 <div
   class="glass-card rounded-2xl p-5 transition-all duration-300 motion-safe:hover:scale-[1.02] hover:bg-white/60 cursor-default"
 >
-  <p class="text-slate-700 text-sm leading-relaxed mb-3">{{ postIt().content }}</p>
+  <p
+    class="text-slate-700 text-sm leading-relaxed mb-3"
+    [class.blurred-content]="isBlurred()"
+  >{{ postIt().content }}</p>
 
   <div class="flex items-center justify-between text-xs text-slate-500">
     <span class="font-medium">✍️ {{ postIt().authorName }}</span>
@@ -36,7 +39,7 @@
         </div>
       }
 
-      @if (!votingActive()) {
+      @if (canDelete()) {
         <button
           (click)="onDelete()"
           class="flex items-center bg-red-100/60 hover:bg-red-200/70 rounded-lg px-2 py-1 transition-all text-red-500/80 hover:text-red-600 border border-red-200/40"
