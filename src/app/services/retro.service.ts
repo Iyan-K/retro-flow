@@ -13,6 +13,7 @@ import {
   setDoc,
   query,
   orderBy,
+  arrayUnion,
   Firestore,
   Unsubscribe,
 } from 'firebase/firestore';
@@ -36,6 +37,8 @@ export class RetroService implements OnDestroy {
   readonly currentUser = signal('');
   readonly roomOwner = signal('');
   readonly phase = signal<RoomPhase>('writing');
+  readonly roomMembers = signal<string[]>([]);
+  readonly readyUsers = signal<string[]>([]);
 
   readonly votingActive = computed(() => this.phase() === 'voting');
 
@@ -44,6 +47,21 @@ export class RetroService implements OnDestroy {
       this.currentUser() !== '' &&
       this.currentUser() === this.roomOwner(),
   );
+
+  readonly isCurrentUserReady = computed(() =>
+    this.readyUsers().includes(this.currentUser()),
+  );
+
+  readonly allUsersReady = computed(() => {
+    const members = this.roomMembers();
+    const ready = this.readyUsers();
+    const owner = this.roomOwner();
+    const nonOwnerMembers = members.filter((m) => m !== owner);
+    return (
+      nonOwnerMembers.length > 0 &&
+      nonOwnerMembers.every((m) => ready.includes(m))
+    );
+  });
 
   readonly remainingVotes = computed(() => {
     const user = this.currentUser();
@@ -106,7 +124,12 @@ export class RetroService implements OnDestroy {
 
   async createRoom(roomId: string, owner: string): Promise<void> {
     const roomRef = doc(this.db, 'rooms', roomId);
-    await setDoc(roomRef, { owner, phase: 'writing' as RoomPhase });
+    await setDoc(roomRef, {
+      owner,
+      phase: 'writing' as RoomPhase,
+      members: [owner],
+      readyUsers: [],
+    });
   }
 
   listenToRoom(roomId: string): void {
@@ -121,6 +144,8 @@ export class RetroService implements OnDestroy {
         const data = snapshot.data();
         if (data) {
           this.roomOwner.set((data['owner'] as string) ?? '');
+          this.roomMembers.set((data['members'] as string[]) ?? []);
+          this.readyUsers.set((data['readyUsers'] as string[]) ?? []);
           if (data['phase']) {
             this.phase.set(data['phase'] as RoomPhase);
           } else {
@@ -155,7 +180,21 @@ export class RetroService implements OnDestroy {
 
   async setPhase(phase: RoomPhase): Promise<void> {
     const roomRef = doc(this.db, 'rooms', this.roomId);
-    await updateDoc(roomRef, { phase });
+    await updateDoc(roomRef, { phase, readyUsers: [] });
+  }
+
+  async joinRoom(): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !this.roomId) return;
+    const roomRef = doc(this.db, 'rooms', this.roomId);
+    await updateDoc(roomRef, { members: arrayUnion(user) });
+  }
+
+  async markReady(): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !this.roomId) return;
+    const roomRef = doc(this.db, 'rooms', this.roomId);
+    await updateDoc(roomRef, { readyUsers: arrayUnion(user) });
   }
 
   async addPostIt(
