@@ -125,7 +125,7 @@ export class RetroService implements OnDestroy {
 
     // Listen to posts
     const postsRef = collection(this.db, 'rooms', roomId, 'posts');
-    const q = query(postsRef, orderBy('createdAt', 'asc'));
+    const q = query(postsRef, orderBy('createdAt', 'desc'));
 
     this.unsubPosts = onSnapshot(
       q,
