@@ -67,28 +67,28 @@
         </button>
       }
 
-      @if (!isOwner() && phase() === 'writing' && !isCurrentUserReady()) {
+      @if (!isOwner() && phase() === 'writing') {
         <button
-          (click)="onMarkReady()"
-          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+          (click)="onToggleReady()"
+          class="backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+          [class]="isCurrentUserReady()
+            ? 'bg-white/50 text-green-700 border-green-400/50 hover:bg-red-100/50 hover:text-red-600 hover:border-red-400/50'
+            : 'bg-emerald-500/80 text-white border-emerald-400/30 hover:bg-emerald-500'"
         >
-          ✅ Klaar met schrijven
+          {{ isCurrentUserReady() ? '↩️ Toch niet klaar' : '✅ Klaar met schrijven' }}
         </button>
       }
 
-      @if (!isOwner() && phase() === 'voting' && !isCurrentUserReady()) {
+      @if (!isOwner() && phase() === 'voting') {
         <button
-          (click)="onMarkReady()"
-          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+          (click)="onToggleReady()"
+          class="backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+          [class]="isCurrentUserReady()
+            ? 'bg-white/50 text-green-700 border-green-400/50 hover:bg-red-100/50 hover:text-red-600 hover:border-red-400/50'
+            : 'bg-emerald-500/80 text-white border-emerald-400/30 hover:bg-emerald-500'"
         >
-          ✅ Klaar met stemmen
+          {{ isCurrentUserReady() ? '↩️ Toch niet klaar' : '✅ Klaar met stemmen' }}
         </button>
-      }
-
-      @if (!isOwner() && isCurrentUserReady()) {
-        <span class="glass rounded-lg px-3 py-1 text-sm font-bold text-green-600">
-          ✅ Klaar!
-        </span>
       }
 
       @if (votingActive()) {

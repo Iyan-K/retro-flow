@@ -86,8 +86,12 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.retroService.setPhase(phase);
   }
 
-  onMarkReady(): void {
-    this.retroService.markReady();
+  onToggleReady(): void {
+    if (this.isCurrentUserReady()) {
+      this.retroService.unmarkReady();
+    } else {
+      this.retroService.markReady();
+    }
   }
 
   isUserReady(author: string): boolean {
