@@ -19,7 +19,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
-import { PostIt, RoomPhase } from '../models/post-it.model';
+import { PostIt, PostItComment, RoomPhase } from '../models/post-it.model';
 
 @Injectable({
   providedIn: 'root',
@@ -110,6 +110,12 @@ export class RetroService implements OnDestroy {
     this.filteredPosts().filter((p) => p.lane === 'process'),
   );
 
+  readonly rankedPosts = computed(() =>
+    [...this.postItsSignal()].sort(
+      (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
+    ),
+  );
+
   constructor() {
     this.app = initializeApp(environment.firebase);
     this.db = initializeFirestore(this.app, {
@@ -167,10 +173,14 @@ export class RetroService implements OnDestroy {
     this.unsubPosts = onSnapshot(
       q,
       (snapshot) => {
-        const posts: PostIt[] = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<PostIt, 'id'>),
-        }));
+        const posts: PostIt[] = snapshot.docs.map((d) => {
+          const data = d.data() as Omit<PostIt, 'id'>;
+          return {
+            id: d.id,
+            ...data,
+            comments: data.comments ?? [],
+          };
+        });
         this.postItsSignal.set(posts);
       },
       (error) => {
@@ -244,6 +254,18 @@ export class RetroService implements OnDestroy {
 
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
     await updateDoc(postRef, { voters });
+  }
+
+  async addComment(postId: string, text: string): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !text.trim()) return;
+    const comment: PostItComment = {
+      author: user,
+      text: text.trim(),
+      createdAt: Date.now(),
+    };
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
+    await updateDoc(postRef, { comments: arrayUnion(comment) });
   }
 
   async deletePostIt(id: string): Promise<void> {
