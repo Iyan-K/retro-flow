@@ -132,7 +132,10 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.filterOpen.update((v) => !v);
   }
 
-  onAddComment(postId: string, text: string): void {
+  onAddComment(postId: string, inputEl: HTMLInputElement): void {
+    const text = inputEl.value;
+    if (!text.trim()) return;
+    inputEl.value = '';
     this.retroService.addComment(postId, text);
   }
 

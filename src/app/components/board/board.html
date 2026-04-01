@@ -191,11 +191,11 @@
                       type="text"
                       placeholder="Opmerking toevoegen..."
                       #commentInput
-                      (keydown.enter)="onAddComment(post.id, commentInput.value); commentInput.value = ''"
+                      (keydown.enter)="onAddComment(post.id, commentInput)"
                       class="flex-1 px-3 py-1.5 bg-white/50 border border-white/60 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all print:hidden"
                     />
                     <button
-                      (click)="onAddComment(post.id, commentInput.value); commentInput.value = ''"
+                      (click)="onAddComment(post.id, commentInput)"
                       class="bg-purple-500/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-purple-500/90 transition-all border border-purple-400/20 print:hidden"
                     >
                       +
