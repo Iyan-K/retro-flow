@@ -12,14 +12,23 @@ import { BoardComponent } from './components/board/board';
 export class App {
   readonly username = signal(localStorage.getItem('retro-user') ?? '');
   readonly roomCode = signal(localStorage.getItem('retro-room') ?? '');
+  readonly isDarkMode = signal(localStorage.getItem('retro-theme') === 'dark');
 
   constructor() {
+    this.applyTheme(this.isDarkMode());
     this.handleRoomQueryParam();
   }
 
   onJoin(): void {
     this.username.set(localStorage.getItem('retro-user') ?? '');
     this.roomCode.set(localStorage.getItem('retro-room') ?? '');
+  }
+
+  toggleTheme(): void {
+    const nextTheme = !this.isDarkMode();
+    this.isDarkMode.set(nextTheme);
+    localStorage.setItem('retro-theme', nextTheme ? 'dark' : 'light');
+    this.applyTheme(nextTheme);
   }
 
   private handleRoomQueryParam(): void {
@@ -39,5 +48,9 @@ export class App {
       window.history.replaceState({}, '', url.toString());
     }
     // If user is NOT logged in, leave ?room= intact for AuthComponent to read
+  }
+
+  private applyTheme(isDarkMode: boolean): void {
+    document.documentElement.classList.toggle('dark-mode', isDarkMode);
   }
 }
