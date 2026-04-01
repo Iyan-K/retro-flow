@@ -97,9 +97,10 @@
         </span>
       }
 
-      <details class="relative">
+      <details #optionsMenu class="relative" (keydown.escape)="optionsMenu.removeAttribute('open')">
         <summary
           class="list-none glass rounded-lg px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-white/50 transition-all cursor-pointer select-none"
+          aria-label="Board options"
         >
           ⚙️ Menu
         </summary>
@@ -110,7 +111,6 @@
             type="button"
             (click)="onToggleTheme()"
             class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
-            [attr.aria-label]="isDarkMode() ? 'Huidige modus donker, schakel naar lichte modus' : 'Huidige modus licht, schakel naar donkere modus'"
           >
             {{ isDarkMode() ? '☀️ Lichte modus' : '🌙 Donkere modus' }}
           </button>
