@@ -1,4 +1,12 @@
-import { Component, inject, input, signal, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
@@ -14,6 +22,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   private readonly retroService = inject(RetroService);
   readonly username = input.required<string>();
   readonly roomCode = input.required<string>();
+  readonly isDarkMode = input.required<boolean>();
+  readonly toggleThemeRequested = output<void>();
 
   readonly topPosts = this.retroService.topPosts;
   readonly tipPosts = this.retroService.tipPosts;
@@ -80,6 +90,10 @@ export class BoardComponent implements OnInit, OnDestroy {
     localStorage.removeItem('retro-room');
     localStorage.removeItem('retro-is-creator');
     window.location.reload();
+  }
+
+  onToggleTheme(): void {
+    this.toggleThemeRequested.emit();
   }
 
   onSetPhase(phase: RoomPhase): void {
