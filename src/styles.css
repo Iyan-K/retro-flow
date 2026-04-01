@@ -63,3 +63,54 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.25);
 }
+
+/* Dark mode theme overrides */
+.dark-mode .bg-animated-gradient {
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #111827, #0f172a);
+}
+
+.dark-mode .glass,
+.dark-mode .glass-light,
+.dark-mode .glass-card {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(148, 163, 184, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.dark-mode .text-slate-800 {
+  color: rgb(226 232 240);
+}
+
+.dark-mode .text-slate-700 {
+  color: rgb(203 213 225);
+}
+
+.dark-mode .text-slate-500,
+.dark-mode .text-slate-400 {
+  color: rgb(148 163 184);
+}
+
+.dark-mode .text-purple-600,
+.dark-mode .text-purple-700 {
+  color: rgb(196 181 253);
+}
+
+.dark-mode .text-amber-600 {
+  color: rgb(252 211 77);
+}
+
+.dark-mode .bg-white\/50,
+.dark-mode .bg-white\/60 {
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.dark-mode .hover\:bg-white\/50:hover,
+.dark-mode .hover\:bg-white\/60:hover,
+.dark-mode .hover\:bg-white\/70:hover {
+  background-color: rgba(51, 65, 85, 0.7);
+}
+
+.dark-mode .border-white\/50,
+.dark-mode .border-white\/60 {
+  border-color: rgba(100, 116, 139, 0.5);
+}
