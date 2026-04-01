@@ -7,6 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
@@ -14,7 +15,7 @@ import { PostIt, RoomPhase } from '../../models/post-it.model';
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [LaneComponent],
+  imports: [LaneComponent, FormsModule],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
@@ -28,6 +29,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly topPosts = this.retroService.topPosts;
   readonly tipPosts = this.retroService.tipPosts;
   readonly processPosts = this.retroService.processPosts;
+  readonly rankedPosts = this.retroService.rankedPosts;
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
@@ -128,5 +130,38 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   toggleFilter(): void {
     this.filterOpen.update((v) => !v);
+  }
+
+  onAddComment(postId: string, inputEl: HTMLInputElement): void {
+    const text = inputEl.value;
+    if (!text.trim()) return;
+    inputEl.value = '';
+    this.retroService.addComment(postId, text);
+  }
+
+  onPrintPdf(): void {
+    window.print();
+  }
+
+  getLaneBadge(lane: PostIt['lane']): string {
+    switch (lane) {
+      case 'top':
+        return '👍 Wat ging goed';
+      case 'tip':
+        return '💡 Tips';
+      case 'process':
+        return '⚙️ Procesverbetering';
+    }
+  }
+
+  getLaneBadgeColor(lane: PostIt['lane']): string {
+    switch (lane) {
+      case 'top':
+        return 'bg-emerald-400/60 text-emerald-900';
+      case 'tip':
+        return 'bg-sky-400/60 text-sky-900';
+      case 'process':
+        return 'bg-purple-400/60 text-purple-900';
+    }
   }
 }

@@ -114,3 +114,38 @@
 .dark-mode .border-white\/60 {
   border-color: rgba(100, 116, 139, 0.5);
 }
+
+/* Print styles for PDF export */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bg-animated-gradient {
+    background: white !important;
+    animation: none !important;
+  }
+
+  .glass,
+  .glass-light,
+  .glass-card {
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  header {
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .fixed {
+    display: none !important;
+  }
+}
