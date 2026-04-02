@@ -9,12 +9,18 @@ import { Component, output, signal, OnInit } from '@angular/core';
 export class AuthComponent implements OnInit {
   readonly username = signal('');
   readonly roomCode = signal('');
+  readonly rememberUsername = signal(true);
   readonly joined = output<void>();
 
   ngOnInit(): void {
-    const savedUser = localStorage.getItem('retro-user');
-    if (savedUser) {
-      this.username.set(savedUser);
+    const rememberPref = localStorage.getItem('retro-remember-username');
+    this.rememberUsername.set(rememberPref !== 'false');
+
+    if (this.rememberUsername()) {
+      const savedUser = localStorage.getItem('retro-user');
+      if (savedUser) {
+        this.username.set(savedUser);
+      }
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -28,7 +34,7 @@ export class AuthComponent implements OnInit {
     const name = this.username().trim();
     const room = this.roomCode().trim().toUpperCase();
     if (name && room) {
-      localStorage.setItem('retro-user', name);
+      this.persistUsernamePreference(name);
       localStorage.setItem('retro-room', room);
       this.clearRoomQueryParam();
       this.joined.emit();
@@ -47,11 +53,29 @@ export class AuthComponent implements OnInit {
     const name = this.username().trim();
     if (name) {
       const room = this.generateRoomCode();
-      localStorage.setItem('retro-user', name);
+      this.persistUsernamePreference(name);
       localStorage.setItem('retro-room', room);
       localStorage.setItem('retro-is-creator', 'true');
       this.joined.emit();
     }
+  }
+
+  onRememberUsernameChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.rememberUsername.set(checked);
+    localStorage.setItem('retro-remember-username', String(checked));
+    if (!checked) {
+      localStorage.removeItem('retro-user');
+    }
+  }
+
+  private persistUsernamePreference(name: string): void {
+    if (this.rememberUsername()) {
+      localStorage.setItem('retro-user', name);
+    } else {
+      localStorage.removeItem('retro-user');
+    }
+    localStorage.setItem('retro-remember-username', String(this.rememberUsername()));
   }
 
   onUsernameInput(event: Event): void {
