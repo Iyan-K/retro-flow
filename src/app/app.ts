@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { AuthComponent } from './components/auth/auth';
 import { BoardComponent } from './components/board/board';
+import { sanitizeUsername, sanitizeRoomCode } from './utils/sanitize';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,8 @@ import { BoardComponent } from './components/board/board';
   styleUrl: './app.css',
 })
 export class App {
-  readonly username = signal(localStorage.getItem('retro-user') ?? '');
-  readonly roomCode = signal(localStorage.getItem('retro-room') ?? '');
+  readonly username = signal(sanitizeUsername(localStorage.getItem('retro-user') ?? ''));
+  readonly roomCode = signal(sanitizeRoomCode(localStorage.getItem('retro-room') ?? ''));
   readonly isDarkMode = signal(localStorage.getItem('retro-theme') === 'dark');
 
   constructor() {
@@ -20,8 +21,8 @@ export class App {
   }
 
   onJoin(): void {
-    this.username.set(localStorage.getItem('retro-user') ?? '');
-    this.roomCode.set(localStorage.getItem('retro-room') ?? '');
+    this.username.set(sanitizeUsername(localStorage.getItem('retro-user') ?? ''));
+    this.roomCode.set(sanitizeRoomCode(localStorage.getItem('retro-room') ?? ''));
   }
 
   toggleTheme(): void {
@@ -33,7 +34,7 @@ export class App {
 
   private handleRoomQueryParam(): void {
     const params = new URLSearchParams(window.location.search);
-    const room = params.get('room')?.trim().toUpperCase();
+    const room = sanitizeRoomCode(params.get('room') ?? '');
     if (!room) return;
 
     const currentUser = this.username();

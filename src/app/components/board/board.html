@@ -192,6 +192,7 @@
                       placeholder="Opmerking toevoegen..."
                       #commentInput
                       (keydown.enter)="onAddComment(post.id, commentInput)"
+                      maxlength="2000"
                       class="flex-1 px-3 py-1.5 bg-white/50 border border-white/60 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all print:hidden"
                     />
                     <button

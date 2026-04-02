@@ -2,12 +2,36 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /rooms/{roomId} {
-      // Development only – replace with authentication checks before production.
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if
+        request.resource.data.owner is string &&
+        request.resource.data.owner.size() > 0 &&
+        request.resource.data.owner.size() <= 50 &&
+        request.resource.data.phase is string &&
+        request.resource.data.members is list;
+      allow update: if
+        (!('owner' in request.resource.data) || request.resource.data.owner == resource.data.owner) &&
+        (!('phase' in request.resource.data) || request.resource.data.phase in ['writing', 'discussing', 'voting', 'ranking']) &&
+        (!('members' in request.resource.data) || request.resource.data.members is list) &&
+        (!('readyUsers' in request.resource.data) || request.resource.data.readyUsers is list);
+      allow delete: if false;
     }
     match /rooms/{roomId}/posts/{postId} {
-      // Development only – replace with authentication checks before production.
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if
+        request.resource.data.authorName is string &&
+        request.resource.data.authorName.size() > 0 &&
+        request.resource.data.authorName.size() <= 50 &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() > 0 &&
+        request.resource.data.content.size() <= 5000 &&
+        request.resource.data.lane in ['top', 'tip', 'process'] &&
+        request.resource.data.createdAt is number;
+      allow update: if
+        (!('authorName' in request.resource.data) || request.resource.data.authorName == resource.data.authorName) &&
+        (!('content' in request.resource.data) || request.resource.data.content == resource.data.content) &&
+        (!('lane' in request.resource.data) || request.resource.data.lane == resource.data.lane);
+      allow delete: if true;
     }
   }
 }

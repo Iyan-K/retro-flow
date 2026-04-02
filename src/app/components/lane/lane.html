@@ -10,6 +10,7 @@
         placeholder="Voeg een notitie toe..."
         [(ngModel)]="newContent"
         (keydown.enter)="onAdd()"
+        maxlength="5000"
         class="flex-1 px-3 py-2 bg-white/50 border border-white/60 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all"
       />
       <button
