@@ -12,6 +12,11 @@ export class AuthComponent implements OnInit {
   readonly joined = output<void>();
 
   ngOnInit(): void {
+    const savedUser = localStorage.getItem('retro-user');
+    if (savedUser) {
+      this.username.set(savedUser);
+    }
+
     const params = new URLSearchParams(window.location.search);
     const room = params.get('room');
     if (room) {
