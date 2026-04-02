@@ -27,15 +27,23 @@ export function sanitizeInput(value: string, maxLength: number): string {
   // Enforce length limit
   sanitized = sanitized.slice(0, maxLength);
 
-  // Strip HTML tags
-  sanitized = sanitized.replace(/<[^>]*>/g, '');
+  // Strip HTML tags (loop to handle nested patterns like <<script>script>)
+  let previous: string;
+  do {
+    previous = sanitized;
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+  } while (sanitized !== previous);
 
   // Remove javascript: / data: URI patterns (case-insensitive)
   sanitized = sanitized.replace(/javascript\s*:/gi, '');
   sanitized = sanitized.replace(/data\s*:/gi, '');
 
   // Remove inline event handlers (onerror=, onclick=, etc.)
-  sanitized = sanitized.replace(/\bon\w+\s*=/gi, '');
+  // Loop to handle nested bypass attempts
+  do {
+    previous = sanitized;
+    sanitized = sanitized.replace(/\bon\w+\s*=/gi, '');
+  } while (sanitized !== previous);
 
   // Neutralize common SQL injection tokens
   sanitized = sanitized.replace(/\b(DROP|DELETE|INSERT|UPDATE|SELECT|UNION|ALTER|EXEC|EXECUTE|CREATE|TRUNCATE)\b/gi, '');
