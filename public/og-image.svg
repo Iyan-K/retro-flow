@@ -1,0 +1,86 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient background matching RetroFlow's animated gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0c3fc"/>
+      <stop offset="33%" stop-color="#8ec5fc"/>
+      <stop offset="66%" stop-color="#f5efff"/>
+      <stop offset="100%" stop-color="#c3cfe2"/>
+    </linearGradient>
+    <!-- Glassmorphism filter -->
+    <filter id="glass-blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+    </filter>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="8" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+    <clipPath id="rounded-card-1">
+      <rect x="80" y="200" width="300" height="180" rx="20"/>
+    </clipPath>
+    <clipPath id="rounded-card-2">
+      <rect x="450" y="180" width="300" height="180" rx="20"/>
+    </clipPath>
+    <clipPath id="rounded-card-3">
+      <rect x="820" y="210" width="300" height="180" rx="20"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative blurred circles -->
+  <circle cx="200" cy="100" r="150" fill="#c084fc" opacity="0.15"/>
+  <circle cx="1000" cy="500" r="200" fill="#60a5fa" opacity="0.12"/>
+  <circle cx="600" cy="600" r="180" fill="#e0c3fc" opacity="0.2"/>
+
+  <!-- Sticky note card 1 - Emerald (What Went Well) -->
+  <g filter="url(#card-shadow)">
+    <rect x="80" y="200" width="300" height="180" rx="20" fill="rgba(255,255,255,0.45)" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+    <rect x="80" y="200" width="300" height="6" rx="3" fill="#34d399"/>
+    <text x="100" y="235" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#059669">✨ What Went Well</text>
+    <text x="100" y="270" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">Great teamwork on the</text>
+    <text x="100" y="292" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">sprint deliverables!</text>
+    <rect x="100" y="320" width="44" height="28" rx="14" fill="#f3e8ff" stroke="#c084fc" stroke-width="1"/>
+    <text x="112" y="339" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#9333ea">👍 3</text>
+  </g>
+
+  <!-- Sticky note card 2 - Sky (Tips & Ideas) -->
+  <g filter="url(#card-shadow)">
+    <rect x="450" y="180" width="300" height="180" rx="20" fill="rgba(255,255,255,0.45)" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+    <rect x="450" y="180" width="300" height="6" rx="3" fill="#38bdf8"/>
+    <text x="470" y="215" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#0284c7">💡 Tips &amp; Ideas</text>
+    <text x="470" y="250" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">Let's try pair programming</text>
+    <text x="470" y="272" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">more often next sprint</text>
+    <rect x="470" y="300" width="44" height="28" rx="14" fill="#f3e8ff" stroke="#c084fc" stroke-width="1"/>
+    <text x="482" y="319" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#9333ea">👍 5</text>
+  </g>
+
+  <!-- Sticky note card 3 - Purple (Process) -->
+  <g filter="url(#card-shadow)">
+    <rect x="820" y="210" width="300" height="180" rx="20" fill="rgba(255,255,255,0.45)" stroke="rgba(255,255,255,0.55)" stroke-width="1.5"/>
+    <rect x="820" y="210" width="300" height="6" rx="3" fill="#a78bfa"/>
+    <text x="840" y="245" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#7c3aed">⚙️ Process</text>
+    <text x="840" y="280" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">Standup meetings could</text>
+    <text x="840" y="302" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#334155">be shorter and focused</text>
+    <rect x="840" y="330" width="44" height="28" rx="14" fill="#f3e8ff" stroke="#c084fc" stroke-width="1"/>
+    <text x="852" y="349" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#9333ea">👍 2</text>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="90" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="52" font-weight="700" fill="#1e293b">🗒️ RetroFlow</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="135" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="22" fill="#64748b">Collaborative retrospective boards — real-time &amp; open source</text>
+
+  <!-- Bottom tagline -->
+  <g filter="url(#shadow)">
+    <rect x="370" y="450" width="460" height="56" rx="28" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.7)" stroke-width="1"/>
+    <text x="600" y="485" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="500" fill="#475569">Write → Discuss → Vote → Rank</text>
+  </g>
+
+  <!-- Tech badges -->
+  <text x="600" y="555" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#94a3b8">Angular · Firebase · Tailwind CSS</text>
+</svg>
