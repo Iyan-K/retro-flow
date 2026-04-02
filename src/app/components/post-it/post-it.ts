@@ -26,9 +26,9 @@ export class PostItComponent {
 
   readonly canDelete = computed(() => {
     const phase = this.phase();
-    if (phase === 'voting') return false;
+    if (phase === 'voting' || phase === 'discussing') return false;
     if (phase === 'writing') return this.isOwnPost();
-    return true; // discussing phase: anyone can delete
+    return true; // ranking phase: anyone can delete
   });
 
   readonly alreadyVoted = computed(() =>
