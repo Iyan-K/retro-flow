@@ -156,7 +156,7 @@ export class RetroService implements OnDestroy {
     this.roomId = safeId;
 
     // Listen to room document for owner & voting state
-    const roomRef = doc(this.db, 'rooms', roomId);
+    const roomRef = doc(this.db, 'rooms', safeId);
     this.unsubRoom = onSnapshot(
       roomRef,
       (snapshot) => {
@@ -179,7 +179,7 @@ export class RetroService implements OnDestroy {
     );
 
     // Listen to posts
-    const postsRef = collection(this.db, 'rooms', roomId, 'posts');
+    const postsRef = collection(this.db, 'rooms', safeId, 'posts');
     const q = query(postsRef, orderBy('createdAt', 'desc'));
 
     this.unsubPosts = onSnapshot(

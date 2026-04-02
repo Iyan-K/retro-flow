@@ -37,8 +37,11 @@ export function sanitizeInput(value: string, maxLength: number): string {
   // Remove inline event handlers (onerror=, onclick=, etc.)
   sanitized = sanitized.replace(/\bon\w+\s*=/gi, '');
 
-  // Neutralise common SQL injection tokens
-  sanitized = sanitized.replace(/(['";])\s*(OR|AND|DROP|DELETE|INSERT|UPDATE|SELECT|UNION|ALTER|EXEC|EXECUTE|CREATE|TRUNCATE)\b/gi, '$1 ');
+  // Neutralize common SQL injection tokens
+  sanitized = sanitized.replace(/\b(DROP|DELETE|INSERT|UPDATE|SELECT|UNION|ALTER|EXEC|EXECUTE|CREATE|TRUNCATE)\b/gi, '');
+
+  // Remove SQL comment sequences and semicolons used for statement chaining
+  sanitized = sanitized.replace(/--|\/\*|\*\/|;/g, '');
 
   // Remove $-prefixed keys that could manipulate NoSQL queries
   // (e.g. $gt, $ne, $regex, $where)
