@@ -71,11 +71,7 @@ export class AuthComponent implements OnInit {
   }
 
   private persistUsernamePreference(name: string): void {
-    if (this.rememberUsername()) {
-      localStorage.setItem('retro-user', name);
-    } else {
-      localStorage.removeItem('retro-user');
-    }
+    localStorage.setItem('retro-user', name);
     localStorage.setItem('retro-remember-username', String(this.rememberUsername()));
   }
 
