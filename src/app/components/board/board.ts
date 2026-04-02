@@ -1,11 +1,14 @@
 import {
   Component,
+  ElementRef,
+  HostListener,
   inject,
   input,
-  output,
-  signal,
-  OnInit,
   OnDestroy,
+  output,
+  OnInit,
+  signal,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
@@ -21,6 +24,7 @@ import { PostIt, RoomPhase } from '../../models/post-it.model';
 })
 export class BoardComponent implements OnInit, OnDestroy {
   private readonly retroService = inject(RetroService);
+  @ViewChild('optionsMenu') optionsMenu?: ElementRef<HTMLDetailsElement>;
   readonly username = input.required<string>();
   readonly roomCode = input.required<string>();
   readonly isDarkMode = input.required<boolean>();
@@ -140,6 +144,17 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onPrintPdf(): void {
     window.print();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const menu = this.optionsMenu?.nativeElement;
+    if (!menu?.hasAttribute('open')) return;
+
+    const target = event.target as Node | null;
+    if (target && !menu.contains(target)) {
+      menu.removeAttribute('open');
+    }
   }
 
   getLaneBadge(lane: PostIt['lane']): string {
