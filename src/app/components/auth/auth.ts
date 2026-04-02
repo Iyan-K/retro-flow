@@ -1,4 +1,5 @@
 import { Component, output, signal, OnInit } from '@angular/core';
+import { sanitizeUsername, sanitizeRoomCode } from '../../utils/sanitize';
 
 @Component({
   selector: 'app-auth',
@@ -20,13 +21,13 @@ export class AuthComponent implements OnInit {
     const params = new URLSearchParams(window.location.search);
     const room = params.get('room');
     if (room) {
-      this.roomCode.set(room.trim().toUpperCase());
+      this.roomCode.set(sanitizeRoomCode(room));
     }
   }
 
   onJoin(): void {
-    const name = this.username().trim();
-    const room = this.roomCode().trim().toUpperCase();
+    const name = sanitizeUsername(this.username());
+    const room = sanitizeRoomCode(this.roomCode());
     if (name && room) {
       localStorage.setItem('retro-user', name);
       localStorage.setItem('retro-room', room);
@@ -44,7 +45,7 @@ export class AuthComponent implements OnInit {
   }
 
   onCreateRoom(): void {
-    const name = this.username().trim();
+    const name = sanitizeUsername(this.username());
     if (name) {
       const room = this.generateRoomCode();
       localStorage.setItem('retro-user', name);

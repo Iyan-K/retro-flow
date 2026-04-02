@@ -20,6 +20,12 @@ import {
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { PostIt, PostItComment, RoomPhase } from '../models/post-it.model';
+import {
+  sanitizeUsername,
+  sanitizeRoomCode,
+  sanitizePostContent,
+  sanitizeComment,
+} from '../utils/sanitize';
 
 @Injectable({
   providedIn: 'root',
@@ -130,18 +136,24 @@ export class RetroService implements OnDestroy {
   }
 
   async createRoom(roomId: string, owner: string): Promise<void> {
-    const roomRef = doc(this.db, 'rooms', roomId);
+    const safeId = sanitizeRoomCode(roomId);
+    const safeOwner = sanitizeUsername(owner);
+    if (!safeId || !safeOwner) return;
+
+    const roomRef = doc(this.db, 'rooms', safeId);
     await setDoc(roomRef, {
-      owner,
+      owner: safeOwner,
       phase: 'writing' as RoomPhase,
-      members: [owner],
+      members: [safeOwner],
       readyUsers: [],
     });
   }
 
   listenToRoom(roomId: string): void {
     this.stopListening();
-    this.roomId = roomId;
+    const safeId = sanitizeRoomCode(roomId);
+    if (!safeId) return;
+    this.roomId = safeId;
 
     // Listen to room document for owner & voting state
     const roomRef = doc(this.db, 'rooms', roomId);
@@ -195,14 +207,14 @@ export class RetroService implements OnDestroy {
   }
 
   async joinRoom(): Promise<void> {
-    const user = this.currentUser();
+    const user = sanitizeUsername(this.currentUser());
     if (!user || !this.roomId) return;
     const roomRef = doc(this.db, 'rooms', this.roomId);
     await setDoc(roomRef, { members: arrayUnion(user) }, { merge: true });
   }
 
   async markReady(): Promise<void> {
-    const user = this.currentUser();
+    const user = sanitizeUsername(this.currentUser());
     if (!user || !this.roomId) return;
     const roomRef = doc(this.db, 'rooms', this.roomId);
     await setDoc(
@@ -213,7 +225,7 @@ export class RetroService implements OnDestroy {
   }
 
   async unmarkReady(): Promise<void> {
-    const user = this.currentUser();
+    const user = sanitizeUsername(this.currentUser());
     if (!user || !this.roomId) return;
     const roomRef = doc(this.db, 'rooms', this.roomId);
     await updateDoc(roomRef, { readyUsers: arrayRemove(user) });
@@ -224,10 +236,14 @@ export class RetroService implements OnDestroy {
     lane: PostIt['lane'],
     author: string,
   ): Promise<void> {
+    const safeContent = sanitizePostContent(content);
+    const safeAuthor = sanitizeUsername(author);
+    if (!safeContent || !safeAuthor) return;
+
     const postsRef = collection(this.db, 'rooms', this.roomId, 'posts');
     await addDoc(postsRef, {
-      authorName: author,
-      content,
+      authorName: safeAuthor,
+      content: safeContent,
       lane,
       votes: 0,
       voters: [],
@@ -257,11 +273,12 @@ export class RetroService implements OnDestroy {
   }
 
   async addComment(postId: string, text: string): Promise<void> {
-    const user = this.currentUser();
-    if (!user || !text.trim()) return;
+    const user = sanitizeUsername(this.currentUser());
+    const safeText = sanitizeComment(text);
+    if (!user || !safeText) return;
     const comment: PostItComment = {
       author: user,
-      text: text.trim(),
+      text: safeText,
       createdAt: Date.now(),
     };
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
