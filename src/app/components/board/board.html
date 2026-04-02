@@ -1,6 +1,15 @@
 <div class="min-h-screen bg-animated-gradient">
   <header class="relative z-[70] glass border-t-0 border-x-0 py-4 px-6 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-slate-800">🗒️ RetroFlow</h1>
+    <div class="flex items-center gap-2">
+      <svg class="w-7 h-7 text-slate-800 shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="4" y="6" width="24" height="24" rx="3" stroke="currentColor" stroke-width="2"/>
+        <rect x="10" y="2" width="12" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
+        <line x1="9" y1="15" x2="23" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="9" y1="20" x2="23" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="9" y1="25" x2="18" y2="25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <h1 class="text-2xl font-bold text-slate-800">Retro<span class="text-purple-500">Flow</span></h1>
+    </div>
     <div class="flex items-center gap-4">
       <span class="glass rounded-lg px-3 py-1 text-sm font-mono font-bold text-purple-600">
         Kamer: {{ roomCode() }}
