@@ -73,7 +73,7 @@
   <text x="600" y="90" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="52" font-weight="700" fill="#1e293b">🗒️ RetroFlow</text>
 
   <!-- Subtitle -->
-  <text x="600" y="135" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="22" fill="#64748b">Collaborative retrospective boards — real-time &amp; open source</text>
+  <text x="600" y="135" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="22" fill="#64748b">Collaborative retrospective boards</text>
 
   <!-- Bottom tagline -->
   <g filter="url(#shadow)">
