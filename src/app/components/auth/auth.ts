@@ -65,17 +65,10 @@ export class AuthComponent implements OnInit {
     const checked = (event.target as HTMLInputElement).checked;
     this.rememberUsername.set(checked);
     localStorage.setItem('retro-remember-username', String(checked));
-    if (!checked) {
-      localStorage.removeItem('retro-user');
-    }
   }
 
   private persistUsernamePreference(name: string): void {
-    if (this.rememberUsername()) {
-      localStorage.setItem('retro-user', name);
-    } else {
-      localStorage.removeItem('retro-user');
-    }
+    localStorage.setItem('retro-user', name);
     localStorage.setItem('retro-remember-username', String(this.rememberUsername()));
   }
 
