@@ -88,7 +88,9 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   onLeave(): void {
-    localStorage.removeItem('retro-user');
+    if (localStorage.getItem('retro-remember-username') !== 'true') {
+      localStorage.removeItem('retro-user');
+    }
     localStorage.removeItem('retro-room');
     localStorage.removeItem('retro-is-creator');
     window.location.reload();
