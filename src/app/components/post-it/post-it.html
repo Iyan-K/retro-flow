@@ -1,10 +1,37 @@
 <div
   class="glass-card rounded-2xl p-5 transition-all duration-300 motion-safe:hover:scale-[1.02] hover:bg-white/60 cursor-default"
 >
-  <p
-    class="text-slate-700 text-sm leading-relaxed mb-3"
-    [class.blurred-content]="isBlurred()"
-  >{{ postIt().content }}</p>
+  @if (editing()) {
+    <div class="mb-3">
+      <textarea
+        [(ngModel)]="editContent"
+        (keydown.escape)="onCancelEdit()"
+        maxlength="5000"
+        rows="3"
+        class="w-full px-3 py-2 bg-white/50 border border-white/60 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all resize-none"
+      ></textarea>
+      <div class="flex justify-end gap-2 mt-2">
+        <button
+          (click)="onCancelEdit()"
+          class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 bg-white/50 hover:bg-white/70 transition-all border border-white/60"
+        >
+          Annuleren
+        </button>
+        <button
+          (click)="onSaveEdit()"
+          [disabled]="!editContent.trim()"
+          class="px-3 py-1 rounded-lg text-xs font-semibold text-white bg-purple-500/70 hover:bg-purple-500/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-purple-400/20"
+        >
+          Opslaan
+        </button>
+      </div>
+    </div>
+  } @else {
+    <p
+      class="text-slate-700 text-sm leading-relaxed mb-3"
+      [class.blurred-content]="isBlurred()"
+    >{{ postIt().content }}</p>
+  }
 
   <div class="flex items-center justify-between text-xs text-slate-500">
     <span class="font-medium">✍️ {{ postIt().authorName }}</span>
@@ -37,6 +64,16 @@
             </div>
           }
         </div>
+      }
+
+      @if (canEdit() && !editing()) {
+        <button
+          (click)="onStartEdit()"
+          class="flex items-center bg-sky-100/60 hover:bg-sky-200/70 rounded-lg px-2 py-1 transition-all text-sky-500/80 hover:text-sky-600 border border-sky-200/40"
+          title="Bewerken"
+        >
+          ✏️
+        </button>
       }
 
       @if (canDelete()) {

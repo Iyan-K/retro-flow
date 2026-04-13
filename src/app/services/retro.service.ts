@@ -120,6 +120,14 @@ export class RetroService implements OnDestroy {
     this.filteredPosts().filter((p) => p.lane === 'process'),
   );
 
+  readonly energyPosts = computed(() =>
+    this.filteredPosts().filter((p) => p.lane === 'energy'),
+  );
+
+  readonly geleerdPosts = computed(() =>
+    this.filteredPosts().filter((p) => p.lane === 'geleerd'),
+  );
+
   readonly rankedPosts = computed(() =>
     [...this.postItsSignal()].sort(
       (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
@@ -257,20 +265,31 @@ export class RetroService implements OnDestroy {
     content: string,
     lane: PostIt['lane'],
     author: string,
+    options?: { energyLevel?: number; icon?: string },
   ): Promise<void> {
     const safeContent = sanitizePostContent(content);
     const safeAuthor = sanitizeUsername(author);
-    if (!safeContent || !safeAuthor) return;
+    if (!safeAuthor) return;
+    // For energy lane, content can be empty (icon-only post-its)
+    if (lane !== 'energy' && !safeContent) return;
 
-    const postsRef = collection(this.db, 'rooms', this.roomId, 'posts');
-    await addDoc(postsRef, {
+    const postData: Record<string, unknown> = {
       authorName: safeAuthor,
-      content: safeContent,
+      content: safeContent ?? '',
       lane,
       votes: 0,
       voters: [],
       createdAt: Date.now(),
-    });
+    };
+    if (options?.energyLevel !== undefined) {
+      postData['energyLevel'] = options.energyLevel;
+    }
+    if (options?.icon) {
+      postData['icon'] = options.icon;
+    }
+
+    const postsRef = collection(this.db, 'rooms', this.roomId, 'posts');
+    await addDoc(postsRef, postData);
   }
 
   async toggleVote(id: string): Promise<void> {
@@ -305,6 +324,13 @@ export class RetroService implements OnDestroy {
     };
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
     await updateDoc(postRef, { comments: arrayUnion(comment) });
+  }
+
+  async updatePostIt(id: string, content: string): Promise<void> {
+    const safeContent = sanitizePostContent(content);
+    if (!safeContent) return;
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await updateDoc(postRef, { content: safeContent });
   }
 
   async deletePostIt(id: string): Promise<void> {

@@ -20,6 +20,7 @@ export class LaneComponent {
   readonly hasVotesLeft = input(false);
   readonly voted = output<string>();
   readonly deleted = output<string>();
+  readonly edited = output<{ id: string; content: string }>();
   readonly added = output<{ content: string; lane: PostIt['lane'] }>();
 
   newContent = '';
@@ -32,6 +33,10 @@ export class LaneComponent {
         return 'bg-sky-400/60';
       case 'process':
         return 'bg-purple-400/60';
+      case 'geleerd':
+        return 'bg-amber-400/60';
+      default:
+        return 'bg-slate-400/60';
     }
   }
 
@@ -43,6 +48,10 @@ export class LaneComponent {
         return 'Nog geen notities. Heb je tips? Bijvoorbeeld: \'Meer pair programming sessies plannen.\', \'Vaker korte feedback-momenten inlassen.\', \'User stories beter opsplitsen voor de sprint.\'';
       case 'process':
         return 'Nog geen notities. Wat kan beter in het proces? Bijvoorbeeld: \'Stand-ups korter en meer to-the-point houden.\', \'Duidelijkere Definition of Done afspreken.\', \'Minder context-switching tussen taken.\'';
+      case 'geleerd':
+        return 'Nog geen notities. Wat heb je geleerd? Bijvoorbeeld: \'Nieuwe testing-technieken ontdekt.\', \'Beter leren communiceren met stakeholders.\', \'Geleerd hoe we sneller kunnen deployen.\'';
+      default:
+        return 'Nog geen notities.';
     }
   }
 
@@ -60,5 +69,9 @@ export class LaneComponent {
 
   onDelete(id: string): void {
     this.deleted.emit(id);
+  }
+
+  onEdit(event: { id: string; content: string }): void {
+    this.edited.emit(event);
   }
 }
