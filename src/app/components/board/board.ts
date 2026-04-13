@@ -77,6 +77,10 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.retroService.deletePostIt(id);
   }
 
+  onEdit(event: { id: string; content: string }): void {
+    this.retroService.updatePostIt(event.id, event.content);
+  }
+
   onShare(): void {
     const url = new URL(window.location.href);
     url.searchParams.set('room', this.roomCode());

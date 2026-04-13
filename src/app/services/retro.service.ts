@@ -285,6 +285,13 @@ export class RetroService implements OnDestroy {
     await updateDoc(postRef, { comments: arrayUnion(comment) });
   }
 
+  async updatePostIt(id: string, content: string): Promise<void> {
+    const safeContent = sanitizePostContent(content);
+    if (!safeContent) return;
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await updateDoc(postRef, { content: safeContent });
+  }
+
   async deletePostIt(id: string): Promise<void> {
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
     await deleteDoc(postRef);

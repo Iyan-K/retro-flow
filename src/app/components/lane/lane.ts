@@ -20,6 +20,7 @@ export class LaneComponent {
   readonly hasVotesLeft = input(false);
   readonly voted = output<string>();
   readonly deleted = output<string>();
+  readonly edited = output<{ id: string; content: string }>();
   readonly added = output<{ content: string; lane: PostIt['lane'] }>();
 
   newContent = '';
@@ -60,5 +61,9 @@ export class LaneComponent {
 
   onDelete(id: string): void {
     this.deleted.emit(id);
+  }
+
+  onEdit(event: { id: string; content: string }): void {
+    this.edited.emit(event);
   }
 }
