@@ -12,6 +12,7 @@ export const MAX_LENGTHS = {
   roomCode: 10,
   postContent: 5000,
   comment: 2000,
+  suggestion: 2000,
 } as const;
 
 /**
@@ -78,4 +79,9 @@ export function sanitizePostContent(value: string): string {
 /** Sanitize a comment. */
 export function sanitizeComment(value: string): string {
   return sanitizeInput(value, MAX_LENGTHS.comment);
+}
+
+/** Sanitize a suggestion. */
+export function sanitizeSuggestion(value: string): string {
+  return sanitizeInput(value, MAX_LENGTHS.suggestion);
 }

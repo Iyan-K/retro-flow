@@ -13,7 +13,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
-import { PostIt, RoomPhase } from '../../models/post-it.model';
+import { PostIt, RoomPhase, Suggestion } from '../../models/post-it.model';
 
 @Component({
   selector: 'app-board',
@@ -44,9 +44,11 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly readyUsers = this.retroService.readyUsers;
   readonly isCurrentUserReady = this.retroService.isCurrentUserReady;
   readonly allUsersReady = this.retroService.allUsersReady;
+  readonly suggestions = this.retroService.suggestions;
 
   readonly filterOpen = signal(false);
   readonly copied = signal(false);
+  readonly suggestionsOpen = signal(false);
 
   ngOnInit(): void {
     this.retroService.currentUser.set(this.username());
@@ -133,6 +135,17 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   toggleFilter(): void {
     this.filterOpen.update((v) => !v);
+  }
+
+  toggleSuggestions(): void {
+    this.suggestionsOpen.update((v) => !v);
+  }
+
+  onAddSuggestion(inputEl: HTMLInputElement): void {
+    const text = inputEl.value;
+    if (!text.trim()) return;
+    inputEl.value = '';
+    this.retroService.addSuggestion(text);
   }
 
   onAddComment(postId: string, inputEl: HTMLInputElement): void {

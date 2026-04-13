@@ -295,12 +295,55 @@
       </div>
     }
 
-    <button
-      (click)="toggleFilter()"
-      class="w-12 h-12 rounded-full bg-purple-500/80 backdrop-blur-sm text-white flex items-center justify-center text-lg shadow-lg hover:bg-purple-500 transition-all border border-purple-400/30"
-      title="Filter op gebruiker"
-    >
-      🔍
-    </button>
+    @if (suggestionsOpen()) {
+      <div class="glass-light rounded-2xl p-4 shadow-lg border border-white/50 flex flex-col gap-3 min-w-[260px] max-w-[360px] max-h-[400px]">
+        <p class="text-sm font-bold text-slate-700">💡 Suggesties</p>
+        <div class="flex-1 overflow-y-auto flex flex-col gap-2 max-h-[260px]">
+          @for (suggestion of suggestions(); track suggestion.id) {
+            <div class="bg-white/50 rounded-xl px-3 py-2 text-sm text-slate-700">
+              <span class="font-semibold text-purple-600 text-xs">{{ suggestion.author }}:</span>
+              <span class="ml-1">{{ suggestion.text }}</span>
+            </div>
+          }
+          @if (suggestions().length === 0) {
+            <p class="text-xs text-slate-400 italic">Nog geen suggesties.</p>
+          }
+        </div>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            placeholder="Voeg een suggestie toe..."
+            #suggestionInput
+            (keydown.enter)="onAddSuggestion(suggestionInput)"
+            maxlength="2000"
+            class="flex-1 px-3 py-2 bg-white/50 border border-white/60 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all"
+          />
+          <button
+            (click)="onAddSuggestion(suggestionInput)"
+            class="bg-purple-500/70 backdrop-blur-sm text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-purple-500/90 transition-all border border-purple-400/20"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="toggleSuggestions()"
+        class="w-12 h-12 rounded-full bg-amber-500/80 backdrop-blur-sm text-white flex items-center justify-center text-lg shadow-lg hover:bg-amber-500 transition-all border border-amber-400/30"
+        title="Suggesties"
+      >
+        💡
+      </button>
+
+      <button
+        (click)="toggleFilter()"
+        class="w-12 h-12 rounded-full bg-purple-500/80 backdrop-blur-sm text-white flex items-center justify-center text-lg shadow-lg hover:bg-purple-500 transition-all border border-purple-400/30"
+        title="Filter op gebruiker"
+      >
+        🔍
+      </button>
+    </div>
   </div>
 </div>

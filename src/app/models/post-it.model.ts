@@ -16,3 +16,10 @@ export interface PostIt {
   comments: PostItComment[];
   createdAt: number;
 }
+
+export interface Suggestion {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: number;
+}

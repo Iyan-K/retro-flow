@@ -19,12 +19,13 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
-import { PostIt, PostItComment, RoomPhase } from '../models/post-it.model';
+import { PostIt, PostItComment, RoomPhase, Suggestion } from '../models/post-it.model';
 import {
   sanitizeUsername,
   sanitizeRoomCode,
   sanitizePostContent,
   sanitizeComment,
+  sanitizeSuggestion,
 } from '../utils/sanitize';
 
 @Injectable({
@@ -37,8 +38,10 @@ export class RetroService implements OnDestroy {
   private readonly db: Firestore;
   private unsubPosts: Unsubscribe | null = null;
   private unsubRoom: Unsubscribe | null = null;
+  private unsubSuggestions: Unsubscribe | null = null;
 
   private readonly postItsSignal = signal<PostIt[]>([]);
+  private readonly suggestionsSignal = signal<Suggestion[]>([]);
   private roomId = '';
 
   readonly currentUser = signal('');
@@ -81,6 +84,7 @@ export class RetroService implements OnDestroy {
   });
 
   readonly postIts = this.postItsSignal.asReadonly();
+  readonly suggestions = this.suggestionsSignal.asReadonly();
   readonly filterAuthor = signal('');
 
   readonly uniqueAuthors = computed(() =>
@@ -199,6 +203,24 @@ export class RetroService implements OnDestroy {
         console.error('Firestore listener error:', error);
       },
     );
+
+    // Listen to suggestions
+    const suggestionsRef = collection(this.db, 'rooms', safeId, 'suggestions');
+    const suggestionsQuery = query(suggestionsRef, orderBy('createdAt', 'desc'));
+
+    this.unsubSuggestions = onSnapshot(
+      suggestionsQuery,
+      (snapshot) => {
+        const suggestions: Suggestion[] = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as Omit<Suggestion, 'id'>),
+        }));
+        this.suggestionsSignal.set(suggestions);
+      },
+      (error) => {
+        console.error('Suggestions listener error:', error);
+      },
+    );
   }
 
   async setPhase(phase: RoomPhase): Promise<void> {
@@ -290,6 +312,18 @@ export class RetroService implements OnDestroy {
     await deleteDoc(postRef);
   }
 
+  async addSuggestion(text: string): Promise<void> {
+    const user = sanitizeUsername(this.currentUser());
+    const safeText = sanitizeSuggestion(text);
+    if (!user || !safeText || !this.roomId) return;
+    const suggestionsRef = collection(this.db, 'rooms', this.roomId, 'suggestions');
+    await addDoc(suggestionsRef, {
+      author: user,
+      text: safeText,
+      createdAt: Date.now(),
+    });
+  }
+
   stopListening(): void {
     if (this.unsubPosts) {
       this.unsubPosts();
@@ -298,6 +332,10 @@ export class RetroService implements OnDestroy {
     if (this.unsubRoom) {
       this.unsubRoom();
       this.unsubRoom = null;
+    }
+    if (this.unsubSuggestions) {
+      this.unsubSuggestions();
+      this.unsubSuggestions = null;
     }
   }
 }
