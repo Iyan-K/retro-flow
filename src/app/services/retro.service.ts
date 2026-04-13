@@ -129,9 +129,11 @@ export class RetroService implements OnDestroy {
   );
 
   readonly rankedPosts = computed(() =>
-    [...this.postItsSignal()].sort(
-      (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
-    ),
+    [...this.postItsSignal()]
+      .filter((p) => p.lane !== 'energy')
+      .sort(
+        (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
+      ),
   );
 
   constructor() {
@@ -272,6 +274,14 @@ export class RetroService implements OnDestroy {
     if (!safeAuthor) return;
     // For energy lane, content can be empty (icon-only post-its)
     if (lane !== 'energy' && !safeContent) return;
+
+    // Limit one energy post per user
+    if (lane === 'energy') {
+      const existing = this.postItsSignal().find(
+        (p) => p.lane === 'energy' && p.authorName === safeAuthor,
+      );
+      if (existing) return;
+    }
 
     const postData: Record<string, unknown> = {
       authorName: safeAuthor,
