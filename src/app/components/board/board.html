@@ -1,23 +1,23 @@
-<div class="min-h-screen bg-animated-gradient">
-  <header class="relative z-[70] glass border-t-0 border-x-0 py-4 px-6 flex items-center justify-between">
+<div class="min-h-screen bg-animated-gradient overflow-x-hidden">
+  <header class="relative z-[70] glass border-t-0 border-x-0 py-3 px-3 sm:py-4 sm:px-6 flex flex-wrap items-center gap-2 sm:gap-0 sm:justify-between">
     <div class="flex items-center gap-2">
-      <svg class="w-7 h-7 text-slate-800 shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-800 shrink-0" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect x="4" y="6" width="24" height="24" rx="3" stroke="currentColor" stroke-width="2"/>
         <rect x="10" y="2" width="12" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
         <line x1="9" y1="15" x2="23" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
         <line x1="9" y1="20" x2="23" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
         <line x1="9" y1="25" x2="18" y2="25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
       </svg>
-      <h1 class="text-2xl font-bold text-slate-800">Retro<span class="text-purple-500">Flow</span></h1>
+      <h1 class="text-lg sm:text-2xl font-bold text-slate-800">Retro<span class="text-purple-500">Flow</span></h1>
     </div>
-    <div class="flex items-center gap-4">
-      <span class="glass rounded-lg px-3 py-1 text-sm font-mono font-bold text-purple-600">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-4">
+      <span class="glass rounded-lg px-2 py-1 text-xs sm:text-sm font-mono font-bold text-purple-600">
         Kamer: {{ roomCode() }}
       </span>
 
       <button
         (click)="onShare()"
-        class="glass rounded-lg px-3 py-1 text-sm font-semibold text-purple-600 hover:bg-white/50 transition-all cursor-pointer"
+        class="glass rounded-lg px-2 py-1 text-xs sm:text-sm font-semibold text-purple-600 hover:bg-white/50 transition-all cursor-pointer"
         title="Kopieer deellink"
       >
         {{ copied() ? '✅ Gekopieerd!' : '🔗 Delen' }}
@@ -26,7 +26,7 @@
       <div class="flex items-center -space-x-2">
         @for (member of roomMembers(); track member) {
           <div
-            class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white cursor-default transition-transform hover:scale-110 hover:z-10"
+            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white cursor-default transition-transform hover:scale-110 hover:z-10"
             [class]="
               (isUserReady(member) ? 'border-4 border-green-400 ' : 'border-2 border-white/60 ') +
               (member === username() ? 'bg-purple-500' : 'bg-slate-500')
@@ -41,12 +41,12 @@
         }
       </div>
 
-      <span class="text-sm text-slate-500">Ingelogd als <strong class="text-slate-700">{{ username() }}</strong></span>
+      <span class="hidden sm:inline text-sm text-slate-500">Ingelogd als <strong class="text-slate-700">{{ username() }}</strong></span>
 
       @if (isOwner() && phase() === 'writing') {
         <button
           (click)="onSetPhase('discussing')"
-          class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
+          class="bg-sky-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
         >
           💬 Naar discussie
         </button>
@@ -55,13 +55,13 @@
       @if (isOwner() && phase() === 'discussing') {
         <button
           (click)="onSetPhase('writing')"
-          class="bg-emerald-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
+          class="bg-emerald-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-emerald-500 transition-all border border-emerald-400/30"
         >
           ✏️ Terug naar schrijven
         </button>
         <button
           (click)="onSetPhase('voting')"
-          class="bg-amber-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
+          class="bg-amber-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
         >
           🗳️ Tijd om te stemmen
         </button>
@@ -70,13 +70,13 @@
       @if (isOwner() && phase() === 'voting') {
         <button
           (click)="onSetPhase('discussing')"
-          class="bg-sky-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
+          class="bg-sky-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-sky-500 transition-all border border-sky-400/30"
         >
           💬 Terug naar discussie
         </button>
         <button
           (click)="onSetPhase('ranking')"
-          class="bg-rose-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-rose-500 transition-all border border-rose-400/30"
+          class="bg-rose-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-rose-500 transition-all border border-rose-400/30"
         >
           🏆 Naar rangschikking
         </button>
@@ -85,7 +85,7 @@
       @if (isOwner() && phase() === 'ranking') {
         <button
           (click)="onSetPhase('voting')"
-          class="bg-amber-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
+          class="bg-amber-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-amber-500 transition-all border border-amber-400/30"
         >
           🗳️ Terug naar stemmen
         </button>
@@ -94,7 +94,7 @@
       @if (phase() === 'ranking') {
         <button
           (click)="onPrintPdf()"
-          class="bg-indigo-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-500 transition-all border border-indigo-400/30 print:hidden"
+          class="bg-indigo-500/80 backdrop-blur-sm text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold hover:bg-indigo-500 transition-all border border-indigo-400/30 print:hidden"
         >
           🖨️ Print PDF
         </button>
@@ -103,7 +103,7 @@
       @if (!isOwner() && phase() === 'writing') {
         <button
           (click)="onToggleReady()"
-          class="backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+          class="backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border"
           [class]="isCurrentUserReady()
             ? 'bg-white/50 text-green-700 border-green-400/50 hover:bg-red-100/50 hover:text-red-600 hover:border-red-400/50'
             : 'bg-emerald-500/80 text-white border-emerald-400/30 hover:bg-emerald-500'"
@@ -115,7 +115,7 @@
       @if (!isOwner() && phase() === 'voting') {
         <button
           (click)="onToggleReady()"
-          class="backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-semibold transition-all border"
+          class="backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border"
           [class]="isCurrentUserReady()
             ? 'bg-white/50 text-green-700 border-green-400/50 hover:bg-red-100/50 hover:text-red-600 hover:border-red-400/50'
             : 'bg-emerald-500/80 text-white border-emerald-400/30 hover:bg-emerald-500'"
@@ -125,14 +125,14 @@
       }
 
       @if (votingActive()) {
-        <span class="glass rounded-lg px-3 py-1 text-sm font-bold text-amber-600">
+        <span class="glass rounded-lg px-2 py-1 text-xs sm:text-sm font-bold text-amber-600">
           Stemmen over: {{ remainingVotes() }}
         </span>
       }
 
       <details #optionsMenu class="relative" (keydown.escape)="optionsMenu.removeAttribute('open')">
         <summary
-          class="list-none glass rounded-lg px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-white/50 transition-all cursor-pointer select-none"
+          class="list-none glass rounded-lg px-2 py-1 sm:px-3 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-white/50 transition-all cursor-pointer select-none"
           aria-label="Board options"
         >
           ⚙️ Menu
@@ -159,7 +159,7 @@
     </div>
   </header>
 
-  <main class="p-4">
+  <main class="p-2 sm:p-4">
     @if (phase() === 'ranking') {
       <!-- Ranking view: single column, sorted by votes -->
       <div class="max-w-3xl mx-auto space-y-4" id="ranking-content">
