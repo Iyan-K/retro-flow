@@ -144,6 +144,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.retroService.filterAuthor.set(
       this.retroService.filterAuthor() === author ? '' : author,
     );
+    this.filterOpen.set(false);
   }
 
   clearFilter(): void {
