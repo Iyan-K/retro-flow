@@ -11,11 +11,12 @@
         [(ngModel)]="newContent"
         (keydown.enter)="onAdd()"
         maxlength="5000"
-        class="flex-1 px-3 py-2 bg-white/50 border border-white/60 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all"
+        [disabled]="phase() !== 'writing'"
+        class="flex-1 px-3 py-2 bg-white/50 border border-white/60 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
       />
       <button
         (click)="onAdd()"
-        [disabled]="!newContent.trim()"
+        [disabled]="!newContent.trim() || phase() !== 'writing'"
         class="bg-purple-500/70 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-purple-500/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-purple-400/20"
       >
         +
