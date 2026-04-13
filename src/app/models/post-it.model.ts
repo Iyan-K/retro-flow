@@ -18,3 +18,10 @@ export interface PostIt {
   energyLevel?: number;
   icon?: string;
 }
+
+export interface Suggestion {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: number;
+}
