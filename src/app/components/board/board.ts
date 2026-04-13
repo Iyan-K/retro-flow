@@ -201,4 +201,12 @@ export class BoardComponent implements OnInit, OnDestroy {
         return 'bg-amber-400/60 text-amber-900';
     }
   }
+
+  getEnergyBarColor(level: number): string {
+    if (level <= 20) return 'bg-red-400';
+    if (level <= 40) return 'bg-orange-400';
+    if (level <= 60) return 'bg-yellow-400';
+    if (level <= 80) return 'bg-lime-400';
+    return 'bg-emerald-400';
+  }
 }

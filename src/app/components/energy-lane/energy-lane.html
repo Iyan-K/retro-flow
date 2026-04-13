@@ -59,7 +59,7 @@
             <div class="w-full bg-white/40 rounded-full h-3 overflow-hidden">
               <div
                 class="h-full rounded-full transition-all"
-                [class]="post.energyLevel! <= 20 ? 'bg-red-400' : post.energyLevel! <= 40 ? 'bg-orange-400' : post.energyLevel! <= 60 ? 'bg-yellow-400' : post.energyLevel! <= 80 ? 'bg-lime-400' : 'bg-emerald-400'"
+                [class]="getEnergyBarColor(post.energyLevel!)"
                 [style.width.%]="post.energyLevel"
               ></div>
             </div>

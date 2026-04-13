@@ -69,6 +69,14 @@ export class EnergyLaneComponent {
     }
   }
 
+  getEnergyBarColor(level: number): string {
+    if (level <= 20) return 'bg-red-400';
+    if (level <= 40) return 'bg-orange-400';
+    if (level <= 60) return 'bg-yellow-400';
+    if (level <= 80) return 'bg-lime-400';
+    return 'bg-emerald-400';
+  }
+
   getEnergyColor(level: number): string {
     if (level <= 20) return 'bg-red-400/70 text-red-900';
     if (level <= 40) return 'bg-orange-400/70 text-orange-900';
