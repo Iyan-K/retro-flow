@@ -31,7 +31,9 @@ export class EnergyLaneComponent {
   /** Whether the current user already submitted an energy post */
   readonly hasExistingPost = computed(() => {
     const user = this.username();
-    return user ? this.posts().some((p) => p.authorName === user) : false;
+    return user
+      ? this.posts().some((p) => p.lane === 'energy' && p.authorName === user)
+      : false;
   });
 
   readonly energyLevels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
