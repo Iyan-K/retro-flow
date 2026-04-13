@@ -10,9 +10,11 @@ export interface PostIt {
   id: string;
   authorName: string;
   content: string;
-  lane: 'top' | 'tip' | 'process';
+  lane: 'top' | 'tip' | 'process' | 'energy' | 'geleerd';
   votes: number;
   voters: string[];
   comments: PostItComment[];
   createdAt: number;
+  energyLevel?: number;
+  icon?: string;
 }

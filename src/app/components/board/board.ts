@@ -13,12 +13,13 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
+import { EnergyLaneComponent } from '../energy-lane/energy-lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
 
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [LaneComponent, FormsModule],
+  imports: [LaneComponent, EnergyLaneComponent, FormsModule],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
@@ -33,6 +34,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly topPosts = this.retroService.topPosts;
   readonly tipPosts = this.retroService.tipPosts;
   readonly processPosts = this.retroService.processPosts;
+  readonly energyPosts = this.retroService.energyPosts;
+  readonly geleerdPosts = this.retroService.geleerdPosts;
   readonly rankedPosts = this.retroService.rankedPosts;
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
@@ -67,6 +70,18 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onAdd(event: { content: string; lane: PostIt['lane'] }): void {
     this.retroService.addPostIt(event.content, event.lane, this.username());
+  }
+
+  onAddEnergy(event: {
+    content: string;
+    lane: PostIt['lane'];
+    energyLevel: number;
+    icon: string;
+  }): void {
+    this.retroService.addPostIt(event.content, event.lane, this.username(), {
+      energyLevel: event.energyLevel,
+      icon: event.icon,
+    });
   }
 
   onVote(id: string): void {
@@ -165,6 +180,10 @@ export class BoardComponent implements OnInit, OnDestroy {
         return '💡 Tips';
       case 'process':
         return '⚙️ Procesverbetering';
+      case 'energy':
+        return '⚡ Energie & Gevoel';
+      case 'geleerd':
+        return '📚 Geleerd';
     }
   }
 
@@ -176,6 +195,10 @@ export class BoardComponent implements OnInit, OnDestroy {
         return 'bg-sky-400/60 text-sky-900';
       case 'process':
         return 'bg-purple-400/60 text-purple-900';
+      case 'energy':
+        return 'bg-rose-400/60 text-rose-900';
+      case 'geleerd':
+        return 'bg-amber-400/60 text-amber-900';
     }
   }
 }
