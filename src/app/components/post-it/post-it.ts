@@ -1,9 +1,11 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
 
 @Component({
   selector: 'app-post-it',
   standalone: true,
+  imports: [FormsModule],
   templateUrl: './post-it.html',
   styleUrl: './post-it.css',
 })
@@ -15,6 +17,10 @@ export class PostItComponent {
   readonly hasVotesLeft = input(false);
   readonly voted = output<string>();
   readonly deleted = output<string>();
+  readonly edited = output<{ id: string; content: string }>();
+
+  readonly editing = signal(false);
+  editContent = '';
 
   readonly isOwnPost = computed(
     () => this.postIt().authorName === this.username(),
@@ -22,6 +28,10 @@ export class PostItComponent {
 
   readonly isBlurred = computed(
     () => this.phase() === 'writing' && !this.isOwnPost(),
+  );
+
+  readonly canEdit = computed(
+    () => this.phase() === 'writing' && this.isOwnPost(),
   );
 
   readonly canDelete = computed(() => {
@@ -62,5 +72,22 @@ export class PostItComponent {
 
   onDelete(): void {
     this.deleted.emit(this.postIt().id);
+  }
+
+  onStartEdit(): void {
+    this.editContent = this.postIt().content;
+    this.editing.set(true);
+  }
+
+  onCancelEdit(): void {
+    this.editing.set(false);
+  }
+
+  onSaveEdit(): void {
+    const content = this.editContent.trim();
+    if (content && content !== this.postIt().content) {
+      this.edited.emit({ id: this.postIt().id, content });
+    }
+    this.editing.set(false);
   }
 }
