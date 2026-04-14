@@ -7,6 +7,7 @@
     <div class="flex gap-2">
       <textarea
         placeholder="Voeg een notitie toe..."
+        aria-label="Voeg een notitie toe"
         [(ngModel)]="newContent"
         (keydown)="onKeydown($event)"
         maxlength="5000"
