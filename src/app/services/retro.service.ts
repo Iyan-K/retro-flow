@@ -331,8 +331,9 @@ export class RetroService implements OnDestroy {
     const user = sanitizeUsername(this.currentUser());
     const safeText = sanitizeSuggestion(text);
     if (!user || !safeText || !this.roomId) return;
-    const suggestionsRef = collection(this.db, 'rooms', this.roomId, 'suggestions');
+    const suggestionsRef = collection(this.db, 'suggestions');
     await addDoc(suggestionsRef, {
+      roomCode: this.roomId,
       author: user,
       text: safeText,
       createdAt: Date.now(),

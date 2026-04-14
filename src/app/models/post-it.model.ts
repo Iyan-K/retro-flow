@@ -21,6 +21,7 @@ export interface PostIt {
 
 export interface Suggestion {
   id: string;
+  roomCode: string;
   author: string;
   text: string;
   createdAt: number;
