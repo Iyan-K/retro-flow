@@ -33,9 +33,12 @@ service cloud.firestore {
         (!('lane' in request.resource.data) || request.resource.data.lane == resource.data.lane);
       allow delete: if true;
     }
-    match /rooms/{roomId}/suggestions/{suggestionId} {
+    match /suggestions/{suggestionId} {
       allow read: if true;
       allow create: if
+        request.resource.data.roomCode is string &&
+        request.resource.data.roomCode.size() > 0 &&
+        request.resource.data.roomCode.size() <= 10 &&
         request.resource.data.author is string &&
         request.resource.data.author.size() > 0 &&
         request.resource.data.author.size() <= 50 &&
