@@ -81,40 +81,74 @@
       <p class="text-xs text-slate-400 text-center italic">Je hebt al een energie- en gevoelpost toegevoegd.</p>
     }
 
-    @for (post of posts(); track post.id) {
-      <div class="glass-card rounded-2xl p-4 transition-all motion-safe:hover:scale-[1.02] hover:bg-white/60">
-        <div class="flex flex-col items-center text-center gap-2">
-          @if (post.icon) {
-            <span class="text-5xl">{{ post.icon }}</span>
-          }
-          @if (post.energyLevel !== undefined) {
-            <div class="w-full bg-white/40 rounded-full h-3 overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all"
-                [class]="getEnergyBarColor(post.energyLevel!)"
-                [style.width.%]="post.energyLevel"
-              ></div>
+    @if (phase() === 'writing') {
+      <!-- During writing: show only current user's own post (with delete), hide others -->
+      @for (post of posts(); track post.id) {
+        @if (post.authorName === username()) {
+          <div class="glass-card rounded-2xl p-4 transition-all motion-safe:hover:scale-[1.02] hover:bg-white/60">
+            <div class="flex flex-col items-center text-center gap-2">
+              @if (post.icon) {
+                <span class="text-5xl">{{ post.icon }}</span>
+              }
+              @if (post.energyLevel !== undefined) {
+                <div class="w-full bg-white/40 rounded-full h-3 overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all"
+                    [class]="getEnergyBarColor(post.energyLevel!)"
+                    [style.width.%]="post.energyLevel"
+                  ></div>
+                </div>
+                <span class="text-sm font-bold text-slate-600">{{ post.energyLevel }}%</span>
+              }
             </div>
-            <span class="text-sm font-bold text-slate-600">{{ post.energyLevel }}%</span>
-          }
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span class="font-medium">✍️ {{ post.authorName }}</span>
+              <button
+                (click)="onDelete(post.id)"
+                class="flex items-center bg-red-100/60 hover:bg-red-200/70 rounded-lg px-2 py-1 transition-all text-red-500/80 hover:text-red-600 border border-red-200/40"
+                title="Verwijderen"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        }
+      }
+      @if (hiddenPostCount() > 0) {
+        <div class="glass-card rounded-2xl p-4 text-center">
+          <p class="text-sm text-slate-500 italic">🔒 {{ hiddenPostCount() }} energie-post{{ hiddenPostCount() > 1 ? 's' : '' }} verborgen. {{ hiddenPostCount() > 1 ? 'Worden' : 'Wordt' }} zichtbaar in de volgende fase.</p>
         </div>
-        <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
-          <span class="font-medium">✍️ {{ post.authorName }}</span>
-          @if (phase() === 'writing' && post.authorName === username()) {
-            <button
-              (click)="onDelete(post.id)"
-              class="flex items-center bg-red-100/60 hover:bg-red-200/70 rounded-lg px-2 py-1 transition-all text-red-500/80 hover:text-red-600 border border-red-200/40"
-              title="Verwijderen"
-            >
-              🗑️
-            </button>
-          }
+      }
+      @if (posts().length === 0) {
+        <p class="text-slate-400 text-center text-sm italic py-4">Nog geen energie-posts. Kies je energieniveau en een icoon om aan te geven hoe je je voelt! Bijvoorbeeld: 🔥 80% of 😴 30%</p>
+      }
+    } @else {
+      @for (post of posts(); track post.id) {
+        <div class="glass-card rounded-2xl p-4 transition-all motion-safe:hover:scale-[1.02] hover:bg-white/60">
+          <div class="flex flex-col items-center text-center gap-2">
+            @if (post.icon) {
+              <span class="text-5xl">{{ post.icon }}</span>
+            }
+            @if (post.energyLevel !== undefined) {
+              <div class="w-full bg-white/40 rounded-full h-3 overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all"
+                  [class]="getEnergyBarColor(post.energyLevel!)"
+                  [style.width.%]="post.energyLevel"
+                ></div>
+              </div>
+              <span class="text-sm font-bold text-slate-600">{{ post.energyLevel }}%</span>
+            }
+          </div>
+          <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+            <span class="font-medium">✍️ {{ post.authorName }}</span>
+          </div>
         </div>
-      </div>
-    }
+      }
 
-    @if (posts().length === 0) {
-      <p class="text-slate-400 text-center text-sm italic py-4">Nog geen energie-posts. Kies je energieniveau en een icoon om aan te geven hoe je je voelt! Bijvoorbeeld: 🔥 80% of 😴 30%</p>
+      @if (posts().length === 0) {
+        <p class="text-slate-400 text-center text-sm italic py-4">Nog geen energie-posts.</p>
+      }
     }
   </div>
 </div>
