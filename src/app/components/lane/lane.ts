@@ -55,6 +55,13 @@ export class LaneComponent {
     }
   }
 
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.onAdd();
+    }
+  }
+
   onAdd(): void {
     const content = this.newContent.trim();
     if (content) {
