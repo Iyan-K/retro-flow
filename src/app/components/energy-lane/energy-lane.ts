@@ -36,6 +36,12 @@ export class EnergyLaneComponent {
       : false;
   });
 
+  /** Number of other users' energy posts hidden during writing phase */
+  readonly hiddenPostCount = computed(() => {
+    const user = this.username();
+    return this.posts().filter((p) => p.authorName !== user).length;
+  });
+
   readonly energyLevels = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   /** Number of icons visible without opening the kebab menu (one row of 4) */
