@@ -5,13 +5,16 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
   collection,
+  collectionGroup,
   addDoc,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   updateDoc,
   setDoc,
   query,
+  where,
   orderBy,
   arrayUnion,
   arrayRemove,
@@ -19,7 +22,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
-import { PostIt, PostItComment, RoomPhase } from '../models/post-it.model';
+import { PostIt, PostItComment, RoomPhase, MemoryLanePost } from '../models/post-it.model';
 import {
   sanitizeUsername,
   sanitizeRoomCode,
@@ -337,6 +340,40 @@ export class RetroService implements OnDestroy {
       author: user,
       text: safeText,
       createdAt: Date.now(),
+    });
+  }
+
+  /**
+   * Returns every post the given user has ever authored across all rooms.
+   *
+   * One-shot read (no realtime listener) — Memory Lane is a snapshot-in-time
+   * view. Does not touch the active room listener or the postItsSignal.
+   *
+   * Requires:
+   *  - a Firestore collection-group index on posts(authorName ASC, createdAt DESC)
+   *  - firestore.rules to permit collection-group reads on posts
+   */
+  async getUserMemoryLane(username: string): Promise<MemoryLanePost[]> {
+    const safeUser = sanitizeUsername(username);
+    if (!safeUser) return [];
+
+    const postsGroup = collectionGroup(this.db, 'posts');
+    const q = query(
+      postsGroup,
+      where('authorName', '==', safeUser),
+      orderBy('createdAt', 'desc'),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => {
+      const data = d.data() as Omit<PostIt, 'id'>;
+      // posts live at rooms/{roomId}/posts/{postId}; parent.parent is the room doc.
+      const roomCode = d.ref.parent.parent?.id ?? '';
+      return {
+        id: d.id,
+        ...data,
+        comments: data.comments ?? [],
+        roomCode,
+      };
     });
   }
 

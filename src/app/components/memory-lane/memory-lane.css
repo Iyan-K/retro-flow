@@ -1,0 +1,91 @@
+/* Memory Lane — print stylesheet
+ * Uses native window.print() to produce a PDF; OS picker provides
+ * "Save as PDF". CSS controls layout and page breaks.
+ */
+
+/* By default, print-only elements are hidden on screen. */
+.print-only {
+  display: none;
+}
+
+@media print {
+  /* Avoid colored backgrounds; force black-on-white for legibility/ink. */
+  :host,
+  .memory-lane-root {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Remove glass effects which don't print well. */
+  .memory-lane-root :is(.glass, .glass-card, .glass-light) {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide screen-only chrome (header, buttons, empty/loading states). */
+  .screen-only {
+    display: none !important;
+  }
+
+  /* Show the print-only header. */
+  .print-only {
+    display: block;
+  }
+
+  .print-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.75rem;
+  }
+
+  .print-header h1 {
+    font-size: 18pt;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .print-header p {
+    font-size: 11pt;
+    margin: 0;
+    color: #333;
+  }
+
+  .memory-lane-main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Keep each lane section together; break between sections so categories
+   * never split awkwardly across pages. */
+  .lane-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .lane-section + .lane-section {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Each card stays on a single page when possible. */
+  .memory-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #cbd5e1 !important;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* Tailwind text colors -> printable. */
+  .memory-lane-root :is(.text-slate-500, .text-slate-600, .text-slate-700, .text-slate-800) {
+    color: #000 !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}

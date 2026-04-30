@@ -49,5 +49,13 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
+
+    // Collection-group rule for posts.
+    // Required so the Memory Lane feature can run a collectionGroup('posts')
+    // query that spans every room. Read-only; per-room writes still go through
+    // the rules under /rooms/{roomId}/posts above.
+    match /{path=**}/posts/{postId} {
+      allow read: if true;
+    }
   }
 }
