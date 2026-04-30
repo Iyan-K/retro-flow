@@ -149,6 +149,19 @@
           </button>
           <button
             type="button"
+            (click)="onMemoryLane()"
+            class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all flex items-center gap-2"
+            title="Bekijk al je kaarten uit alle sessies"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3v5h5"/>
+              <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+              <path d="M12 7v5l4 2"/>
+            </svg>
+            <span>Memory Lane</span>
+          </button>
+          <button
+            type="button"
             (click)="openHistory()"
             class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
           >

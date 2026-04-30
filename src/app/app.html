@@ -1,10 +1,2 @@
-@if (username() && roomCode()) {
-  <app-board
-    [username]="username()"
-    [roomCode]="roomCode()"
-    [isDarkMode]="isDarkMode()"
-    (toggleThemeRequested)="toggleTheme()"
-  />
-} @else {
-  <app-auth (joined)="onJoin()" />
-}
+<router-outlet />
+

@@ -26,3 +26,32 @@ export interface Suggestion {
   text: string;
   createdAt: number;
 }
+
+export type Lane = PostIt['lane'];
+
+export interface MemoryLanePost extends PostIt {
+  roomCode: string;
+}
+
+/**
+ * Display labels for each lane. Kept in sync with the badges used in
+ * BoardComponent.getLaneBadge so Memory Lane uses the same vocabulary.
+ */
+export const LANE_LABELS: Record<Lane, string> = {
+  top: '👍 Wat ging goed',
+  tip: '💡 Tips',
+  process: '⚙️ Procesverbetering',
+  energy: '⚡ Energie & Gevoel',
+  geleerd: '📚 Geleerd',
+};
+
+/**
+ * Order in which lanes are displayed in Memory Lane (matches the board layout).
+ */
+export const LANE_ORDER: readonly Lane[] = [
+  'top',
+  'tip',
+  'process',
+  'geleerd',
+  'energy',
+] as const;

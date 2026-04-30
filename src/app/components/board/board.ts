@@ -32,6 +32,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly roomCode = input.required<string>();
   readonly isDarkMode = input.required<boolean>();
   readonly toggleThemeRequested = output<void>();
+  readonly memoryLaneRequested = output<void>();
 
   readonly topPosts = this.retroService.topPosts;
   readonly tipPosts = this.retroService.tipPosts;
@@ -125,6 +126,10 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onToggleTheme(): void {
     this.toggleThemeRequested.emit();
+  }
+
+  onMemoryLane(): void {
+    this.memoryLaneRequested.emit();
   }
 
   onSetPhase(phase: RoomPhase): void {
