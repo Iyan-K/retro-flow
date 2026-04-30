@@ -349,22 +349,42 @@ export class RetroService implements OnDestroy {
    * One-shot read (no realtime listener) — Memory Lane is a snapshot-in-time
    * view. Does not touch the active room listener or the postItsSignal.
    *
-   * Requires:
-   *  - a Firestore collection-group index on posts(authorName ASC, createdAt DESC)
-   *  - firestore.rules to permit collection-group reads on posts
+   * Prefers the indexed query (authorName ASC, createdAt DESC). If the
+   * required collection-group index hasn't been deployed yet, Firestore
+   * raises `failed-precondition`; in that case we fall back to a query
+   * without `orderBy` and sort client-side, so Memory Lane still works.
+   *
+   * Requires firestore.rules to permit collection-group reads on posts.
    */
   async getUserMemoryLane(username: string): Promise<MemoryLanePost[]> {
     const safeUser = sanitizeUsername(username);
     if (!safeUser) return [];
 
     const postsGroup = collectionGroup(this.db, 'posts');
-    const q = query(
-      postsGroup,
-      where('authorName', '==', safeUser),
-      orderBy('createdAt', 'desc'),
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => {
+    const filter = where('authorName', '==', safeUser);
+
+    let snapshot;
+    let needsClientSort = false;
+    try {
+      snapshot = await getDocs(
+        query(postsGroup, filter, orderBy('createdAt', 'desc')),
+      );
+    } catch (e) {
+      // Firestore throws `failed-precondition` when the composite
+      // collection-group index for (authorName, createdAt) is missing.
+      // Retry without the orderBy and sort client-side as a fallback.
+      const code = (e as { code?: string } | null)?.code;
+      if (code !== 'failed-precondition') throw e;
+      console.warn(
+        'Memory Lane: composite index missing, falling back to client-side sort. ' +
+          'Deploy with `firebase deploy --only firestore:indexes` to remove this fallback.',
+        e,
+      );
+      snapshot = await getDocs(query(postsGroup, filter));
+      needsClientSort = true;
+    }
+
+    const posts = snapshot.docs.map((d) => {
       const data = d.data() as Omit<PostIt, 'id'>;
       // posts live at rooms/{roomId}/posts/{postId}; parent.parent is the room doc.
       const roomCode = d.ref.parent.parent?.id ?? '';
@@ -375,6 +395,11 @@ export class RetroService implements OnDestroy {
         roomCode,
       };
     });
+
+    if (needsClientSort) {
+      posts.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+    }
+    return posts;
   }
 
   stopListening(): void {
