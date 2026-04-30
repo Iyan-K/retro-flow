@@ -49,7 +49,8 @@ export function getRoomHistory(): RoomHistoryEntry[] {
 
 /**
  * Record that the user has interacted with the given room. If an entry for
- * the room already exists, its original `createdAt` is preserved.
+ * the room already exists, the existing entry is left untouched (its
+ * timestamp is not refreshed).
  */
 export function addRoomToHistory(code: string): void {
   const safe = sanitizeRoomCode(code);

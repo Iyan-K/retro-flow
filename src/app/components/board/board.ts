@@ -16,6 +16,7 @@ import { LaneComponent } from '../lane/lane';
 import { EnergyLaneComponent } from '../energy-lane/energy-lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
 import { addRoomToHistory, getRoomHistory, RoomHistoryEntry } from '../../utils/room-history';
+import { sanitizeRoomCode } from '../../utils/sanitize';
 
 @Component({
   selector: 'app-board',
@@ -183,11 +184,12 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   goToRoom(code: string): void {
-    if (!code || code === this.roomCode()) {
+    const safe = sanitizeRoomCode(code);
+    if (!safe || safe === this.roomCode()) {
       this.closeHistory();
       return;
     }
-    localStorage.setItem('retro-room', code);
+    localStorage.setItem('retro-room', safe);
     localStorage.removeItem('retro-is-creator');
     window.location.reload();
   }
