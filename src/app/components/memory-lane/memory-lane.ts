@@ -75,12 +75,24 @@ export class MemoryLaneComponent implements OnInit {
       this.posts.set(results);
     } catch (e) {
       console.error('Failed to load Memory Lane:', e);
+      const detail = this.describeError(e);
       this.error.set(
-        'Het laden van je geschiedenis is niet gelukt. Probeer het later opnieuw.',
+        'Het laden van je geschiedenis is niet gelukt. Probeer het later opnieuw.' +
+          (detail ? ` (${detail})` : ''),
       );
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /** Extract a short, user-visible diagnostic from a Firebase/JS error. */
+  private describeError(e: unknown): string {
+    if (!e || typeof e !== 'object') return '';
+    const err = e as { code?: unknown; message?: unknown };
+    const code = typeof err.code === 'string' ? err.code : '';
+    const message = typeof err.message === 'string' ? err.message : '';
+    if (code && message) return `${code}: ${message}`;
+    return code || message || '';
   }
 
   onBack(): void {
