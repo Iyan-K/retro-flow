@@ -162,6 +162,13 @@
           </button>
           <button
             type="button"
+            (click)="openHistory()"
+            class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
+          >
+            📜 Geschiedenis
+          </button>
+          <button
+            type="button"
             (click)="onLeave()"
             class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
           >
@@ -416,6 +423,62 @@
               Versturen
             </button>
           </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Fullscreen room-history dialog -->
+  @if (historyOpen()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="glass-card rounded-2xl p-8 w-full max-w-lg mx-4 shadow-2xl max-h-[80vh] flex flex-col">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-slate-800">📜 Geschiedenis</h2>
+          <button
+            (click)="closeHistory()"
+            class="w-8 h-8 rounded-full hover:bg-white/60 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all text-lg"
+            aria-label="Sluiten"
+          >
+            ✕
+          </button>
+        </div>
+        @if (roomHistory().length === 0) {
+          <p class="text-sm text-slate-500 italic text-center py-8">Nog geen kamers in je geschiedenis.</p>
+        } @else {
+          <ul class="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
+            @for (entry of roomHistory(); track entry.code) {
+              <li
+                class="flex items-center justify-between gap-3 bg-white/40 border border-white/60 rounded-xl px-4 py-3"
+              >
+                <div class="min-w-0">
+                  <p class="font-mono font-bold text-purple-600 text-sm truncate">{{ entry.code }}</p>
+                  <p class="text-xs text-slate-500">{{ formatHistoryDate(entry.createdAt) }}</p>
+                </div>
+                <button
+                  type="button"
+                  (click)="goToRoom(entry.code)"
+                  class="shrink-0 w-9 h-9 rounded-full bg-purple-500/80 backdrop-blur-sm text-white flex items-center justify-center hover:bg-purple-500 transition-all border border-purple-400/30"
+                  [attr.aria-label]="'Ga naar kamer ' + entry.code"
+                  [title]="'Ga naar kamer ' + entry.code"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4"
+                    aria-hidden="true"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </button>
+              </li>
+            }
+          </ul>
         }
       </div>
     </div>
