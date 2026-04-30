@@ -15,6 +15,7 @@ import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { EnergyLaneComponent } from '../energy-lane/energy-lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
+import { addRoomToHistory, getRoomHistory, RoomHistoryEntry } from '../../utils/room-history';
 
 @Component({
   selector: 'app-board',
@@ -51,6 +52,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly copied = signal(false);
   readonly suggestionsOpen = signal(false);
   readonly suggestionSubmitted = signal(false);
+  readonly historyOpen = signal(false);
+  readonly roomHistory = signal<RoomHistoryEntry[]>([]);
 
   ngOnInit(): void {
     this.retroService.currentUser.set(this.username());
@@ -60,6 +63,8 @@ export class BoardComponent implements OnInit, OnDestroy {
       localStorage.removeItem('retro-is-creator');
       this.retroService.createRoom(this.roomCode(), this.username());
     }
+
+    addRoomToHistory(this.roomCode());
 
     this.retroService.listenToRoom(this.roomCode());
     this.retroService.joinRoom();
@@ -166,6 +171,27 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.suggestionSubmitted.set(false);
   }
 
+  openHistory(): void {
+    this.roomHistory.set(getRoomHistory());
+    this.historyOpen.set(true);
+    // Close the options menu so the dialog isn't hidden behind it.
+    this.optionsMenu?.nativeElement.removeAttribute('open');
+  }
+
+  closeHistory(): void {
+    this.historyOpen.set(false);
+  }
+
+  goToRoom(code: string): void {
+    if (!code || code === this.roomCode()) {
+      this.closeHistory();
+      return;
+    }
+    localStorage.setItem('retro-room', code);
+    localStorage.removeItem('retro-is-creator');
+    window.location.reload();
+  }
+
   onAddSuggestion(inputEl: HTMLInputElement | HTMLTextAreaElement): void {
     const text = inputEl.value;
     if (!text.trim()) return;
@@ -184,6 +210,14 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   onPrintPdf(): void {
     window.print();
+  }
+
+  formatHistoryDate(timestamp: number): string {
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch {
+      return '';
+    }
   }
 
   @HostListener('document:click', ['$event'])
