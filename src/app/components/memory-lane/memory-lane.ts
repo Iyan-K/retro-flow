@@ -36,8 +36,10 @@ export class MemoryLaneComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal('');
 
-  /** Current date in the user's locale, computed once per render. */
-  readonly today = new Date().toLocaleDateString();
+  /** Current date in the user's locale; re-evaluated on each access so a long-lived view doesn't stale. */
+  get today(): string {
+    return new Date().toLocaleDateString();
+  }
 
   readonly groups = computed<LaneGroup[]>(() => {
     const all = this.posts();
