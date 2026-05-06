@@ -4,6 +4,7 @@ import {
   HostListener,
   inject,
   input,
+  effect,
   OnDestroy,
   output,
   OnInit,
@@ -15,7 +16,7 @@ import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { EnergyLaneComponent } from '../energy-lane/energy-lane';
 import { PostIt, RoomPhase } from '../../models/post-it.model';
-import { addRoomToHistory, getRoomHistory, RoomHistoryEntry } from '../../utils/room-history';
+import { addRoomToHistory, getRoomHistory, RoomHistoryEntry, updateRoomHistoryTimestamp } from '../../utils/room-history';
 import { sanitizeRoomCode } from '../../utils/sanitize';
 
 @Component({
@@ -56,6 +57,14 @@ export class BoardComponent implements OnInit, OnDestroy {
   readonly suggestionSubmitted = signal(false);
   readonly historyOpen = signal(false);
   readonly roomHistory = signal<RoomHistoryEntry[]>([]);
+
+  /** Sync the Firestore room creation date to the local history entry. */
+  private readonly syncCreatedAt = effect(() => {
+    const ts = this.retroService.roomCreatedAt();
+    if (ts) {
+      updateRoomHistoryTimestamp(this.roomCode(), ts);
+    }
+  });
 
   ngOnInit(): void {
     this.retroService.currentUser.set(this.username());
