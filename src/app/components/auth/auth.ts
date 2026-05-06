@@ -18,13 +18,20 @@ export class AuthComponent implements OnInit {
       this.username.set(savedUser);
     }
 
+    // Read the pending room from multiple sources (URL, window global, sessionStorage)
     const params = new URLSearchParams(window.location.search);
     let rawRoom = params.get('room') ?? '';
-    // Fall back to the value captured before Angular's router stripped it
+    if (!rawRoom) {
+      const hashPart = window.location.hash.replace(/^#\/?/, '');
+      const hashParams = new URLSearchParams(hashPart);
+      rawRoom = hashParams.get('room') ?? '';
+    }
+    if (!rawRoom) {
+      rawRoom = ((window as unknown as Record<string, unknown>)['__retroPendingRoom'] as string) ?? '';
+    }
     if (!rawRoom) {
       rawRoom = sessionStorage.getItem('retro-pending-room') ?? '';
     }
-    sessionStorage.removeItem('retro-pending-room');
     if (rawRoom) {
       this.roomCode.set(sanitizeRoomCode(rawRoom));
     }
@@ -36,12 +43,14 @@ export class AuthComponent implements OnInit {
     if (name && room) {
       localStorage.setItem('retro-user', name);
       localStorage.setItem('retro-room', room);
-      this.clearRoomQueryParam();
+      this.clearPendingRoom();
       this.joined.emit();
     }
   }
 
-  private clearRoomQueryParam(): void {
+  private clearPendingRoom(): void {
+    delete (window as unknown as Record<string, unknown>)['__retroPendingRoom'];
+    sessionStorage.removeItem('retro-pending-room');
     const url = new URL(window.location.href);
     if (url.searchParams.has('room')) {
       url.searchParams.delete('room');

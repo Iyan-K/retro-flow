@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthComponent } from '../auth/auth';
 import { BoardComponent } from '../board/board';
@@ -57,8 +57,9 @@ import {
     }
   `,
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy {
   private static readonly PENDING_ROOM_KEY = 'retro-pending-room';
+  private static readonly PENDING_ROOM_WINDOW_KEY = '__retroPendingRoom';
 
   private readonly router = inject(Router);
   private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
@@ -75,6 +76,9 @@ export class HomeComponent implements OnDestroy {
 
   constructor() {
     this.applyTheme(this.isDarkMode());
+  }
+
+  ngOnInit(): void {
     this.handleRoomQueryParam();
     document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
@@ -111,13 +115,13 @@ export class HomeComponent implements OnDestroy {
     }
     this.showRoomSwitchDialog.set(false);
     this.roomCodeFromUrl.set('');
-    this.clearRoomQueryParam();
+    this.clearPendingRoom();
   }
 
   declineRoomSwitch(): void {
     this.showRoomSwitchDialog.set(false);
     this.roomCodeFromUrl.set('');
-    this.clearRoomQueryParam();
+    this.clearPendingRoom();
   }
 
   private handleVisibilityChange(): void {
@@ -129,7 +133,7 @@ export class HomeComponent implements OnDestroy {
     const freshRoom = sanitizeRoomCode(localStorage.getItem('retro-room') ?? '');
 
     // Check for a ?room= query param that may have been added
-    const urlRoom = sanitizeRoomCode(this.consumePendingRoom());
+    const urlRoom = sanitizeRoomCode(this.readPendingRoom());
 
     if (urlRoom && freshUser) {
       const activeRoom = freshRoom || this.roomCode();
@@ -138,13 +142,14 @@ export class HomeComponent implements OnDestroy {
         this.roomCode.set(activeRoom);
         this.roomCodeFromUrl.set(urlRoom);
         this.showRoomSwitchDialog.set(true);
+        this.clearPendingRoom();
         return;
       }
       if (!activeRoom || activeRoom === urlRoom) {
         localStorage.setItem('retro-room', urlRoom);
         this.username.set(freshUser);
         this.roomCode.set(urlRoom);
-        this.clearRoomQueryParam();
+        this.clearPendingRoom();
         return;
       }
     }
@@ -160,7 +165,7 @@ export class HomeComponent implements OnDestroy {
   private handleRoomQueryParam(): void {
     // Angular's hash-based router may strip pre-hash query params before
     // this component loads. Fall back to the value captured in main.ts.
-    const room = sanitizeRoomCode(this.consumePendingRoom());
+    const room = sanitizeRoomCode(this.readPendingRoom());
     if (!room) return;
 
     const currentUser = this.username();
@@ -170,14 +175,15 @@ export class HomeComponent implements OnDestroy {
         // User is in a different room — ask before switching
         this.roomCodeFromUrl.set(room);
         this.showRoomSwitchDialog.set(true);
+        this.clearPendingRoom();
       } else {
         // No current room or same room — switch directly
         localStorage.setItem('retro-room', room);
         this.roomCode.set(room);
-        this.clearRoomQueryParam();
+        this.clearPendingRoom();
       }
     }
-    // If user is NOT logged in, leave ?room= intact for AuthComponent to read
+    // If user is NOT logged in, leave pending room intact for AuthComponent to read
   }
 
   private clearRoomQueryParam(): void {
@@ -188,15 +194,41 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
-  /** Read and consume the pending room param from the URL or sessionStorage. */
-  private consumePendingRoom(): string {
+  /**
+   * Read the pending room param from the URL, window global, or sessionStorage.
+   * Does NOT consume/delete the value — call clearPendingRoom() separately
+   * after the dialog is shown or the room is switched.
+   */
+  private readPendingRoom(): string {
+    // 1. Try the URL search params (may still be present before router strips them)
     const params = new URLSearchParams(window.location.search);
     let raw = params.get('room') ?? '';
+
+    // 2. Try the hash-based search params (#/?room=X)
+    if (!raw) {
+      const hashPart = window.location.hash.replace(/^#\/?/, '');
+      const hashParams = new URLSearchParams(hashPart);
+      raw = hashParams.get('room') ?? '';
+    }
+
+    // 3. Try the window global set by main.ts (survives router replaceState)
+    if (!raw) {
+      raw = ((window as unknown as Record<string, unknown>)[HomeComponent.PENDING_ROOM_WINDOW_KEY] as string) ?? '';
+    }
+
+    // 4. Try sessionStorage as last resort
     if (!raw) {
       raw = sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '';
     }
-    sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
+
     return raw;
+  }
+
+  /** Clear all pending-room storage locations. */
+  private clearPendingRoom(): void {
+    delete (window as unknown as Record<string, unknown>)[HomeComponent.PENDING_ROOM_WINDOW_KEY];
+    sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
+    this.clearRoomQueryParam();
   }
 
   private applyTheme(isDarkMode: boolean): void {
