@@ -49,9 +49,9 @@ export const LANE_LABELS: Record<Lane, string> = {
  * Order in which lanes are displayed in Memory Lane (matches the board layout).
  */
 export const LANE_ORDER: readonly Lane[] = [
+  'energy',
   'top',
   'tip',
   'process',
   'geleerd',
-  'energy',
 ] as const;

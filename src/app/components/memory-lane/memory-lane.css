@@ -59,16 +59,15 @@
     max-width: 100% !important;
   }
 
-  /* Keep each lane section together; break between sections so categories
-   * never split awkwardly across pages. */
+  /* Allow lane sections to break across pages so large sections (especially
+   * with 1–2 columns) don't push content to the next page, leaving page 1
+   * empty.  Individual cards already have break-inside: avoid. */
   .lane-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-before: auto;
   }
 
   .lane-section + .lane-section {
-    break-before: page;
-    page-break-before: always;
+    margin-top: 1rem;
   }
 
   /* Each card stays on a single page when possible. */
