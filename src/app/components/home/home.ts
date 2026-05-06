@@ -58,6 +58,8 @@ import {
   `,
 })
 export class HomeComponent implements OnDestroy {
+  private static readonly PENDING_ROOM_KEY = 'retro-pending-room';
+
   private readonly router = inject(Router);
   private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
 
@@ -127,8 +129,7 @@ export class HomeComponent implements OnDestroy {
     const freshRoom = sanitizeRoomCode(localStorage.getItem('retro-room') ?? '');
 
     // Check for a ?room= query param that may have been added
-    const params = new URLSearchParams(window.location.search);
-    const urlRoom = sanitizeRoomCode(params.get('room') ?? '');
+    const urlRoom = sanitizeRoomCode(this.consumePendingRoom());
 
     if (urlRoom && freshUser) {
       const activeRoom = freshRoom || this.roomCode();
@@ -157,8 +158,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   private handleRoomQueryParam(): void {
-    const params = new URLSearchParams(window.location.search);
-    const room = sanitizeRoomCode(params.get('room') ?? '');
+    // Angular's hash-based router may strip pre-hash query params before
+    // this component loads. Fall back to the value captured in main.ts.
+    const room = sanitizeRoomCode(this.consumePendingRoom());
     if (!room) return;
 
     const currentUser = this.username();
@@ -184,6 +186,17 @@ export class HomeComponent implements OnDestroy {
       url.searchParams.delete('room');
       window.history.replaceState({}, '', url.toString());
     }
+  }
+
+  /** Read and consume the pending room param from the URL or sessionStorage. */
+  private consumePendingRoom(): string {
+    const params = new URLSearchParams(window.location.search);
+    let raw = params.get('room') ?? '';
+    if (!raw) {
+      raw = sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '';
+    }
+    sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
+    return raw;
   }
 
   private applyTheme(isDarkMode: boolean): void {
