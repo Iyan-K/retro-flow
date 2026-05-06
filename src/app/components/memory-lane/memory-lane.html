@@ -25,6 +25,22 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+      <!-- Column selector -->
+      <div class="flex items-center gap-1">
+        <span class="text-xs text-slate-500 hidden sm:inline">Kolommen:</span>
+        @for (n of [1, 2, 3, 4, 5]; track n) {
+          <button
+            type="button"
+            (click)="setColumns(n)"
+            [class]="'w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ' +
+              (columns() === n
+                ? 'bg-purple-500 text-white shadow-sm'
+                : 'glass text-slate-600 hover:bg-white/50')"
+          >
+            {{ n }}
+          </button>
+        }
+      </div>
       <button
         type="button"
         (click)="onBack()"
@@ -44,7 +60,7 @@
     </div>
   </header>
 
-  <main class="p-2 sm:p-6 max-w-5xl mx-auto memory-lane-main">
+  <main class="p-2 sm:p-6 max-w-7xl mx-auto memory-lane-main">
     @if (loading()) {
       <div class="screen-only text-center text-slate-600 py-16">
         Geschiedenis aan het laden…
@@ -75,7 +91,7 @@
             </span>
           </div>
 
-          <div class="grid gap-3 sm:gap-4">
+          <div class="grid gap-3 sm:gap-4" [style.gridTemplateColumns]="gridColumns()">
             @for (post of group.posts; track post.id) {
               <article class="memory-card glass-card rounded-2xl p-4 sm:p-5">
                 <div class="flex items-start justify-between gap-3 mb-2">
