@@ -36,6 +36,14 @@ export class MemoryLaneComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal('');
 
+  /** Number of cards displayed side-by-side (1–5, default 2). */
+  readonly columns = signal(2);
+
+  /** CSS value for grid-template-columns based on the current column count. */
+  readonly gridColumns = computed(
+    () => `repeat(${this.columns()}, minmax(0, 1fr))`,
+  );
+
   /** Current date in the user's locale; re-evaluated on each access so a long-lived view doesn't stale. */
   get today(): string {
     return new Date().toLocaleDateString();
@@ -93,6 +101,10 @@ export class MemoryLaneComponent implements OnInit {
     const message = typeof err.message === 'string' ? err.message : '';
     if (code && message) return `${code}: ${message}`;
     return code || message || '';
+  }
+
+  setColumns(count: number): void {
+    this.columns.set(count);
   }
 
   onBack(): void {

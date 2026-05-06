@@ -80,6 +80,11 @@
     padding: 0.5rem 0.75rem !important;
   }
 
+  /* Reset grid to two columns for print regardless of screen selection. */
+  .memory-lane-main .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
   /* Tailwind text colors -> printable. */
   .memory-lane-root :is(.text-slate-500, .text-slate-600, .text-slate-700, .text-slate-800) {
     color: #000 !important;
