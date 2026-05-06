@@ -66,7 +66,7 @@ App (app.ts)
 The root `App` component holds three signals — `username`, `roomCode`, and `isDarkMode` — all persisted in `localStorage`.
 
 - When both `username` and `roomCode` are set, the template swaps `AuthComponent` out for `BoardComponent`; otherwise the login screen is shown.
-- Deep-linking is supported via a `?room=CODE` query parameter. If a user is already logged in the room code is applied immediately; if not, it is pre-filled on the auth screen.
+- Deep-linking is supported via a `?room=CODE` query parameter. If a logged-in user is already in a different room, they are asked before switching; if not logged in, the room code is pre-filled on the auth screen.
 
 `BoardComponent` injects the singleton `RetroService` and wires its signals directly to the template (e.g. `topPosts`, `votingActive`, `remainingVotes`). User actions (add, vote, delete, comment) call thin methods on the board that delegate to `RetroService`.
 

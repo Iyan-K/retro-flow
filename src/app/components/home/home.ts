@@ -6,6 +6,11 @@ import {
   sanitizeUsername,
   sanitizeRoomCode,
 } from '../../utils/sanitize';
+import {
+  capturePendingRoomCode,
+  clearRoomDeepLink,
+  readPendingRoomCode,
+} from '../../utils/room-deep-link';
 
 /**
  * Default route — the existing auth + board experience.
@@ -58,8 +63,6 @@ import {
   `,
 })
 export class HomeComponent implements OnDestroy {
-  private static readonly PENDING_ROOM_KEY = 'retro-pending-room';
-
   private readonly router = inject(Router);
   private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
 
@@ -107,6 +110,7 @@ export class HomeComponent implements OnDestroy {
     const room = this.roomCodeFromUrl();
     if (room) {
       localStorage.setItem('retro-room', room);
+      localStorage.removeItem('retro-is-creator');
       this.roomCode.set(room);
     }
     this.showRoomSwitchDialog.set(false);
@@ -124,12 +128,14 @@ export class HomeComponent implements OnDestroy {
     if (document.visibilityState !== 'visible') return;
     if (this.showRoomSwitchDialog()) return;
 
+    capturePendingRoomCode();
+
     // Re-read localStorage in case another tab changed the room or user
     const freshUser = sanitizeUsername(localStorage.getItem('retro-user') ?? '');
     const freshRoom = sanitizeRoomCode(localStorage.getItem('retro-room') ?? '');
 
     // Check for a ?room= query param that may have been added
-    const urlRoom = sanitizeRoomCode(this.consumePendingRoom());
+    const urlRoom = sanitizeRoomCode(readPendingRoomCode());
 
     if (urlRoom && freshUser) {
       const activeRoom = freshRoom || this.roomCode();
@@ -160,7 +166,7 @@ export class HomeComponent implements OnDestroy {
   private handleRoomQueryParam(): void {
     // Angular's hash-based router may strip pre-hash query params before
     // this component loads. Fall back to the value captured in main.ts.
-    const room = sanitizeRoomCode(this.consumePendingRoom());
+    const room = sanitizeRoomCode(readPendingRoomCode());
     if (!room) return;
 
     const currentUser = this.username();
@@ -181,22 +187,7 @@ export class HomeComponent implements OnDestroy {
   }
 
   private clearRoomQueryParam(): void {
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('room')) {
-      url.searchParams.delete('room');
-      window.history.replaceState({}, '', url.toString());
-    }
-  }
-
-  /** Read and consume the pending room param from the URL or sessionStorage. */
-  private consumePendingRoom(): string {
-    const params = new URLSearchParams(window.location.search);
-    let raw = params.get('room') ?? '';
-    if (!raw) {
-      raw = sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '';
-    }
-    sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
-    return raw;
+    clearRoomDeepLink();
   }
 
   private applyTheme(isDarkMode: boolean): void {

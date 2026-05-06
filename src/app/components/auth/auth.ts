@@ -1,5 +1,6 @@
 import { Component, output, signal, OnInit } from '@angular/core';
 import { sanitizeUsername, sanitizeRoomCode } from '../../utils/sanitize';
+import { clearRoomDeepLink, readPendingRoomCode } from '../../utils/room-deep-link';
 
 @Component({
   selector: 'app-auth',
@@ -18,13 +19,8 @@ export class AuthComponent implements OnInit {
       this.username.set(savedUser);
     }
 
-    const params = new URLSearchParams(window.location.search);
-    let rawRoom = params.get('room') ?? '';
-    // Fall back to the value captured before Angular's router stripped it
-    if (!rawRoom) {
-      rawRoom = sessionStorage.getItem('retro-pending-room') ?? '';
-    }
-    sessionStorage.removeItem('retro-pending-room');
+    // Fall back to the value captured before Angular's router stripped it.
+    const rawRoom = readPendingRoomCode();
     if (rawRoom) {
       this.roomCode.set(sanitizeRoomCode(rawRoom));
     }
@@ -42,11 +38,7 @@ export class AuthComponent implements OnInit {
   }
 
   private clearRoomQueryParam(): void {
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('room')) {
-      url.searchParams.delete('room');
-      window.history.replaceState({}, '', url.toString());
-    }
+    clearRoomDeepLink();
   }
 
   onCreateRoom(): void {
