@@ -10,7 +10,7 @@ export function capturePendingRoomCode(): void {
 }
 
 export function readPendingRoomCode(): string {
-  return readRoomCodeFromUrl() || sessionStorage.getItem(PENDING_ROOM_KEY) || '';
+  return sessionStorage.getItem(PENDING_ROOM_KEY) || '';
 }
 
 export function clearRoomDeepLink(): void {

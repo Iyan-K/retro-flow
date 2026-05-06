@@ -7,6 +7,7 @@ import {
   sanitizeRoomCode,
 } from '../../utils/sanitize';
 import {
+  capturePendingRoomCode,
   clearRoomDeepLink,
   readPendingRoomCode,
 } from '../../utils/room-deep-link';
@@ -132,6 +133,8 @@ export class HomeComponent implements OnDestroy {
   private handleVisibilityChange(): void {
     if (document.visibilityState !== 'visible') return;
     if (this.showRoomSwitchDialog()) return;
+
+    capturePendingRoomCode();
 
     // Re-read localStorage in case another tab changed the room or user
     const freshUser = sanitizeUsername(localStorage.getItem('retro-user') ?? '');
