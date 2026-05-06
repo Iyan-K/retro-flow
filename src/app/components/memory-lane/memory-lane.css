@@ -87,16 +87,13 @@
   }
 
   /* Scale font size down for higher column counts so cards fit on a page. */
-  .memory-lane-root[style*="--print-columns: 3"] .memory-card,
-  .memory-lane-root[style*="--print-columns:3"] .memory-card {
+  .memory-lane-root[data-columns="3"] .memory-card {
     font-size: 9pt;
     padding: 0.35rem 0.5rem !important;
   }
 
-  .memory-lane-root[style*="--print-columns: 4"] .memory-card,
-  .memory-lane-root[style*="--print-columns:4"] .memory-card,
-  .memory-lane-root[style*="--print-columns: 5"] .memory-card,
-  .memory-lane-root[style*="--print-columns:5"] .memory-card {
+  .memory-lane-root[data-columns="4"] .memory-card,
+  .memory-lane-root[data-columns="5"] .memory-card {
     font-size: 8pt;
     padding: 0.25rem 0.4rem !important;
   }
