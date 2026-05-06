@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthComponent } from '../auth/auth';
 import { BoardComponent } from '../board/board';
@@ -57,8 +57,9 @@ import {
     }
   `,
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   private readonly router = inject(Router);
+  private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
 
   readonly username = signal(
     sanitizeUsername(localStorage.getItem('retro-user') ?? ''),
@@ -73,6 +74,11 @@ export class HomeComponent {
   constructor() {
     this.applyTheme(this.isDarkMode());
     this.handleRoomQueryParam();
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   onJoin(): void {
@@ -110,6 +116,44 @@ export class HomeComponent {
     this.showRoomSwitchDialog.set(false);
     this.roomCodeFromUrl.set('');
     this.clearRoomQueryParam();
+  }
+
+  private handleVisibilityChange(): void {
+    if (document.visibilityState !== 'visible') return;
+    if (this.showRoomSwitchDialog()) return;
+
+    // Re-read localStorage in case another tab changed the room or user
+    const freshUser = sanitizeUsername(localStorage.getItem('retro-user') ?? '');
+    const freshRoom = sanitizeRoomCode(localStorage.getItem('retro-room') ?? '');
+
+    // Check for a ?room= query param that may have been added
+    const params = new URLSearchParams(window.location.search);
+    const urlRoom = sanitizeRoomCode(params.get('room') ?? '');
+
+    if (urlRoom && freshUser) {
+      const activeRoom = freshRoom || this.roomCode();
+      if (activeRoom && activeRoom !== urlRoom) {
+        this.username.set(freshUser);
+        this.roomCode.set(activeRoom);
+        this.roomCodeFromUrl.set(urlRoom);
+        this.showRoomSwitchDialog.set(true);
+        return;
+      }
+      if (!activeRoom || activeRoom === urlRoom) {
+        localStorage.setItem('retro-room', urlRoom);
+        this.username.set(freshUser);
+        this.roomCode.set(urlRoom);
+        this.clearRoomQueryParam();
+        return;
+      }
+    }
+
+    // Detect room changes made by another tab via localStorage
+    if (freshUser && freshRoom && freshRoom !== this.roomCode()) {
+      this.username.set(freshUser);
+      this.roomCodeFromUrl.set(freshRoom);
+      this.showRoomSwitchDialog.set(true);
+    }
   }
 
   private handleRoomQueryParam(): void {
