@@ -6,6 +6,7 @@ import {
   input,
   effect,
   OnDestroy,
+  OnChanges,
   output,
   OnInit,
   signal,
@@ -26,8 +27,9 @@ import { sanitizeRoomCode } from '../../utils/sanitize';
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
-export class BoardComponent implements OnInit, OnDestroy {
+export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly retroService = inject(RetroService);
+  private activeRoomCode = '';
   @ViewChild('optionsMenu') optionsMenu?: ElementRef<HTMLDetailsElement>;
   readonly username = input.required<string>();
   readonly roomCode = input.required<string>();
@@ -67,18 +69,31 @@ export class BoardComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.connectToRoom();
+  }
+
+  ngOnChanges(): void {
+    this.connectToRoom();
+  }
+
+  private connectToRoom(): void {
+    const roomCode = this.roomCode();
+    if (!roomCode || this.activeRoomCode === roomCode) return;
+
+    this.retroService.stopListening();
     this.retroService.currentUser.set(this.username());
 
     const isCreator = localStorage.getItem('retro-is-creator') === 'true';
     if (isCreator) {
       localStorage.removeItem('retro-is-creator');
-      this.retroService.createRoom(this.roomCode(), this.username());
+      this.retroService.createRoom(roomCode, this.username());
     }
 
-    addRoomToHistory(this.roomCode());
+    addRoomToHistory(roomCode);
 
-    this.retroService.listenToRoom(this.roomCode());
+    this.retroService.listenToRoom(roomCode);
     this.retroService.joinRoom();
+    this.activeRoomCode = roomCode;
   }
 
   ngOnDestroy(): void {

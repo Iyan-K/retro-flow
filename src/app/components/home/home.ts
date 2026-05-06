@@ -109,14 +109,8 @@ export class HomeComponent implements OnDestroy {
   confirmRoomSwitch(): void {
     const room = this.roomCodeFromUrl();
     if (room) {
-      const previousRoom = this.roomCode();
       localStorage.setItem('retro-room', room);
       localStorage.removeItem('retro-is-creator');
-      this.clearRoomQueryParam();
-      if (previousRoom && previousRoom !== room) {
-        window.location.reload();
-        return;
-      }
       this.roomCode.set(room);
     }
     this.showRoomSwitchDialog.set(false);
