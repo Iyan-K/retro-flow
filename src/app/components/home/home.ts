@@ -129,9 +129,10 @@ export class HomeComponent implements OnDestroy {
     const freshRoom = sanitizeRoomCode(localStorage.getItem('retro-room') ?? '');
 
     // Check for a ?room= query param that may have been added
-    const urlRoom = sanitizeRoomCode(this.consumePendingRoom());
+    const urlRoom = sanitizeRoomCode(this.peekPendingRoom());
 
     if (urlRoom && freshUser) {
+      this.consumePendingRoom();
       const activeRoom = freshRoom || this.roomCode();
       if (activeRoom && activeRoom !== urlRoom) {
         this.username.set(freshUser);
@@ -160,11 +161,13 @@ export class HomeComponent implements OnDestroy {
   private handleRoomQueryParam(): void {
     // Angular's hash-based router may strip pre-hash query params before
     // this component loads. Fall back to the value captured in main.ts.
-    const room = sanitizeRoomCode(this.consumePendingRoom());
+    const room = sanitizeRoomCode(this.peekPendingRoom());
     if (!room) return;
 
     const currentUser = this.username();
     if (currentUser) {
+      // Consume now — logged-in user will handle the room switch
+      this.consumePendingRoom();
       const currentRoom = this.roomCode();
       if (currentRoom && currentRoom !== room) {
         // User is in a different room — ask before switching
@@ -177,7 +180,7 @@ export class HomeComponent implements OnDestroy {
         this.clearRoomQueryParam();
       }
     }
-    // If user is NOT logged in, leave ?room= intact for AuthComponent to read
+    // If user is NOT logged in, leave pending room intact for AuthComponent to read
   }
 
   private clearRoomQueryParam(): void {
@@ -188,13 +191,16 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
+  /** Read the pending room param from the URL or sessionStorage without removing it. */
+  private peekPendingRoom(): string {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('room') ?? '';
+    return raw || (sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '');
+  }
+
   /** Read and consume the pending room param from the URL or sessionStorage. */
   private consumePendingRoom(): string {
-    const params = new URLSearchParams(window.location.search);
-    let raw = params.get('room') ?? '';
-    if (!raw) {
-      raw = sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '';
-    }
+    const raw = this.peekPendingRoom();
     sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
     return raw;
   }
