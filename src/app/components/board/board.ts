@@ -10,6 +10,7 @@ import {
   output,
   OnInit,
   signal,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -72,7 +73,8 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     this.connectToRoom();
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['roomCode']) return;
     this.connectToRoom();
   }
 
