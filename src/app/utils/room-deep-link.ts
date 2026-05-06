@@ -4,17 +4,13 @@ export function capturePendingRoomCode(): void {
   const room = readRoomCodeFromUrl();
   if (room) {
     sessionStorage.setItem(PENDING_ROOM_KEY, room);
+  } else {
+    sessionStorage.removeItem(PENDING_ROOM_KEY);
   }
 }
 
 export function readPendingRoomCode(): string {
-  const room = readRoomCodeFromUrl();
-  if (room) {
-    sessionStorage.setItem(PENDING_ROOM_KEY, room);
-    return room;
-  }
-
-  return sessionStorage.getItem(PENDING_ROOM_KEY) || '';
+  return readRoomCodeFromUrl() || sessionStorage.getItem(PENDING_ROOM_KEY) || '';
 }
 
 export function clearRoomDeepLink(): void {
