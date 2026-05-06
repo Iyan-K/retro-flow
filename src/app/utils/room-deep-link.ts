@@ -8,7 +8,13 @@ export function capturePendingRoomCode(): void {
 }
 
 export function readPendingRoomCode(): string {
-  return readRoomCodeFromUrl() || sessionStorage.getItem(PENDING_ROOM_KEY) || '';
+  const room = readRoomCodeFromUrl();
+  if (room) {
+    sessionStorage.setItem(PENDING_ROOM_KEY, room);
+    return room;
+  }
+
+  return sessionStorage.getItem(PENDING_ROOM_KEY) || '';
 }
 
 export function clearRoomDeepLink(): void {
