@@ -80,9 +80,22 @@
     padding: 0.5rem 0.75rem !important;
   }
 
-  /* Reset grid to two columns for print regardless of screen selection. */
+  /* Use the column count chosen by the user (passed via CSS custom property). */
   .memory-lane-main .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(var(--print-columns, 2), minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
+  }
+
+  /* Scale font size down for higher column counts so cards fit on a page. */
+  .memory-lane-root[data-columns="3"] .memory-card {
+    font-size: 9pt;
+    padding: 0.35rem 0.5rem !important;
+  }
+
+  .memory-lane-root[data-columns="4"] .memory-card,
+  .memory-lane-root[data-columns="5"] .memory-card {
+    font-size: 8pt;
+    padding: 0.25rem 0.4rem !important;
   }
 
   /* Tailwind text colors -> printable. */

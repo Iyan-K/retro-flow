@@ -1,4 +1,6 @@
-<div class="min-h-screen bg-animated-gradient overflow-x-hidden memory-lane-root">
+<div class="min-h-screen bg-animated-gradient overflow-x-hidden memory-lane-root"
+     [style.--print-columns]="columns()"
+     [attr.data-columns]="columns()">
   <!-- Print-only header (hidden on screen, shown when printing) -->
   <div class="print-only print-header">
     <h1>Personal Retrospective History</h1>

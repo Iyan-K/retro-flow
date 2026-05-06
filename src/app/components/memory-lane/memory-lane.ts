@@ -114,7 +114,19 @@ export class MemoryLaneComponent implements OnInit {
   }
 
   onExportPdf(): void {
+    // Dynamically set page orientation based on column count.
+    // 4+ columns need landscape to fit on a single page.
+    const cols = this.columns();
+    let orientationStyle: HTMLStyleElement | null = null;
+    if (cols >= 4) {
+      orientationStyle = document.createElement('style');
+      orientationStyle.textContent = '@page { size: landscape; }';
+      document.head.appendChild(orientationStyle);
+    }
     window.print();
+    if (orientationStyle) {
+      document.head.removeChild(orientationStyle);
+    }
   }
 
   formatDate(timestamp: number): string {
