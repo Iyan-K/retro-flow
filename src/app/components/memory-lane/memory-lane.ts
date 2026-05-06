@@ -104,7 +104,9 @@ export class MemoryLaneComponent implements OnInit {
   }
 
   setColumns(count: number): void {
-    this.columns.set(count);
+    if (count >= 1 && count <= 5) {
+      this.columns.set(count);
+    }
   }
 
   onBack(): void {
