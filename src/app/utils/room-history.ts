@@ -72,3 +72,26 @@ export function addRoomToHistory(code: string): void {
     /* localStorage write failed (quota / disabled) — silently ignore */
   }
 }
+
+/**
+ * Update the `createdAt` timestamp for a room in the local history to match
+ * the actual room creation date stored in Firestore.  This ensures the
+ * Geschiedenis tab always shows the room's real creation date rather than
+ * the date this device first visited the room.
+ */
+export function updateRoomHistoryTimestamp(code: string, createdAt: number): void {
+  const safe = sanitizeRoomCode(code);
+  if (!safe || !Number.isFinite(createdAt) || createdAt <= 0) return;
+
+  const entries = readRaw();
+  const entry = entries.find((e) => e.code === safe);
+  if (!entry || entry.createdAt === createdAt) return;
+
+  entry.createdAt = createdAt;
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  } catch {
+    /* localStorage write failed — silently ignore */
+  }
+}

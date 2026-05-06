@@ -50,6 +50,7 @@ export class RetroService implements OnDestroy {
   readonly phase = signal<RoomPhase>('writing');
   readonly roomMembers = signal<string[]>([]);
   readonly readyUsers = signal<string[]>([]);
+  readonly roomCreatedAt = signal<number>(0);
 
   readonly votingActive = computed(() => this.phase() === 'voting');
 
@@ -160,6 +161,7 @@ export class RetroService implements OnDestroy {
       phase: 'writing' as RoomPhase,
       members: [safeOwner],
       readyUsers: [],
+      createdAt: Date.now(),
     });
   }
 
@@ -179,6 +181,9 @@ export class RetroService implements OnDestroy {
           this.roomOwner.set((data['owner'] as string) ?? '');
           this.roomMembers.set((data['members'] as string[]) ?? []);
           this.readyUsers.set((data['readyUsers'] as string[]) ?? []);
+          if (typeof data['createdAt'] === 'number') {
+            this.roomCreatedAt.set(data['createdAt']);
+          }
           if (data['phase']) {
             this.phase.set(data['phase'] as RoomPhase);
           } else {
