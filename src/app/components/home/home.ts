@@ -6,6 +6,11 @@ import {
   sanitizeUsername,
   sanitizeRoomCode,
 } from '../../utils/sanitize';
+import {
+  PENDING_ROOM_STORAGE_KEY,
+  readPendingRoomFromWindow,
+  clearPendingRoomStorage,
+} from '../../utils/pending-room';
 
 /**
  * Default route — the existing auth + board experience.
@@ -58,9 +63,6 @@ import {
   `,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  private static readonly PENDING_ROOM_KEY = 'retro-pending-room';
-  private static readonly PENDING_ROOM_WINDOW_KEY = '__retroPendingRoom';
-
   private readonly router = inject(Router);
   private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
 
@@ -213,12 +215,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // 3. Try the window global set by main.ts (survives router replaceState)
     if (!raw) {
-      raw = ((window as unknown as Record<string, unknown>)[HomeComponent.PENDING_ROOM_WINDOW_KEY] as string) ?? '';
+      raw = readPendingRoomFromWindow();
     }
 
     // 4. Try sessionStorage as last resort
     if (!raw) {
-      raw = sessionStorage.getItem(HomeComponent.PENDING_ROOM_KEY) ?? '';
+      raw = sessionStorage.getItem(PENDING_ROOM_STORAGE_KEY) ?? '';
     }
 
     return raw;
@@ -226,8 +228,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /** Clear all pending-room storage locations. */
   private clearPendingRoom(): void {
-    delete (window as unknown as Record<string, unknown>)[HomeComponent.PENDING_ROOM_WINDOW_KEY];
-    sessionStorage.removeItem(HomeComponent.PENDING_ROOM_KEY);
+    clearPendingRoomStorage();
     this.clearRoomQueryParam();
   }
 

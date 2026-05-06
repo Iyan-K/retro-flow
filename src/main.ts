@@ -1,6 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
+import { PENDING_ROOM_STORAGE_KEY, storePendingRoomOnWindow } from './app/utils/pending-room';
 
 // Capture the ?room= query param before Angular's hash-based router
 // strips pre-hash search params via replaceState during initialization.
@@ -14,10 +15,10 @@ if (!preBootRoom) {
   preBootRoom = hashParams.get('room') ?? '';
 }
 if (preBootRoom) {
-  sessionStorage.setItem('retro-pending-room', preBootRoom);
+  sessionStorage.setItem(PENDING_ROOM_STORAGE_KEY, preBootRoom);
   // Also store on window for same-page access — sessionStorage can be
   // lost if Angular recreates the root component during router init.
-  (window as unknown as Record<string, unknown>)['__retroPendingRoom'] = preBootRoom;
+  storePendingRoomOnWindow(preBootRoom);
 }
 
 bootstrapApplication(App, appConfig)

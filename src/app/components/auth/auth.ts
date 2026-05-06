@@ -1,5 +1,10 @@
 import { Component, output, signal, OnInit } from '@angular/core';
 import { sanitizeUsername, sanitizeRoomCode } from '../../utils/sanitize';
+import {
+  PENDING_ROOM_STORAGE_KEY,
+  readPendingRoomFromWindow,
+  clearPendingRoomStorage,
+} from '../../utils/pending-room';
 
 @Component({
   selector: 'app-auth',
@@ -27,10 +32,10 @@ export class AuthComponent implements OnInit {
       rawRoom = hashParams.get('room') ?? '';
     }
     if (!rawRoom) {
-      rawRoom = ((window as unknown as Record<string, unknown>)['__retroPendingRoom'] as string) ?? '';
+      rawRoom = readPendingRoomFromWindow();
     }
     if (!rawRoom) {
-      rawRoom = sessionStorage.getItem('retro-pending-room') ?? '';
+      rawRoom = sessionStorage.getItem(PENDING_ROOM_STORAGE_KEY) ?? '';
     }
     if (rawRoom) {
       this.roomCode.set(sanitizeRoomCode(rawRoom));
@@ -49,8 +54,7 @@ export class AuthComponent implements OnInit {
   }
 
   private clearPendingRoom(): void {
-    delete (window as unknown as Record<string, unknown>)['__retroPendingRoom'];
-    sessionStorage.removeItem('retro-pending-room');
+    clearPendingRoomStorage();
     const url = new URL(window.location.href);
     if (url.searchParams.has('room')) {
       url.searchParams.delete('room');
