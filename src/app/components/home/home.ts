@@ -29,6 +29,32 @@ import {
     } @else {
       <app-auth (joined)="onJoin()" />
     }
+
+    @if (showRoomSwitchDialog()) {
+      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="glass-card rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl text-center">
+          <p class="text-4xl mb-4">🚪</p>
+          <h2 class="text-xl font-bold text-slate-800 mb-2">Andere kamer gevonden</h2>
+          <p class="text-sm text-slate-500 mb-6">
+            Wil je naar <span class="font-semibold text-purple-600">{{ roomCodeFromUrl() }}</span> kamer gaan?
+          </p>
+          <div class="flex justify-center gap-3">
+            <button
+              (click)="declineRoomSwitch()"
+              class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white/50 transition-all"
+            >
+              Nee, blijf hier
+            </button>
+            <button
+              (click)="confirmRoomSwitch()"
+              class="bg-purple-500/80 backdrop-blur-sm text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-purple-500 transition-all border border-purple-400/30"
+            >
+              Ja, ga naar kamer
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
 })
 export class HomeComponent {
@@ -41,6 +67,8 @@ export class HomeComponent {
     sanitizeRoomCode(localStorage.getItem('retro-room') ?? ''),
   );
   readonly isDarkMode = signal(localStorage.getItem('retro-theme') === 'dark');
+  readonly showRoomSwitchDialog = signal(false);
+  readonly roomCodeFromUrl = signal('');
 
   constructor() {
     this.applyTheme(this.isDarkMode());
@@ -67,6 +95,23 @@ export class HomeComponent {
     this.router.navigate(['/memory-lane']);
   }
 
+  confirmRoomSwitch(): void {
+    const room = this.roomCodeFromUrl();
+    if (room) {
+      localStorage.setItem('retro-room', room);
+      this.roomCode.set(room);
+    }
+    this.showRoomSwitchDialog.set(false);
+    this.roomCodeFromUrl.set('');
+    this.clearRoomQueryParam();
+  }
+
+  declineRoomSwitch(): void {
+    this.showRoomSwitchDialog.set(false);
+    this.roomCodeFromUrl.set('');
+    this.clearRoomQueryParam();
+  }
+
   private handleRoomQueryParam(): void {
     const params = new URLSearchParams(window.location.search);
     const room = sanitizeRoomCode(params.get('room') ?? '');
@@ -74,16 +119,27 @@ export class HomeComponent {
 
     const currentUser = this.username();
     if (currentUser) {
-      // User is already logged in — switch to the new room
-      localStorage.setItem('retro-room', room);
-      this.roomCode.set(room);
+      const currentRoom = this.roomCode();
+      if (currentRoom && currentRoom !== room) {
+        // User is in a different room — ask before switching
+        this.roomCodeFromUrl.set(room);
+        this.showRoomSwitchDialog.set(true);
+      } else {
+        // No current room or same room — switch directly
+        localStorage.setItem('retro-room', room);
+        this.roomCode.set(room);
+        this.clearRoomQueryParam();
+      }
+    }
+    // If user is NOT logged in, leave ?room= intact for AuthComponent to read
+  }
 
-      // Clear the query param so the board doesn't re-read it
-      const url = new URL(window.location.href);
+  private clearRoomQueryParam(): void {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('room')) {
       url.searchParams.delete('room');
       window.history.replaceState({}, '', url.toString());
     }
-    // If user is NOT logged in, leave ?room= intact for AuthComponent to read
   }
 
   private applyTheme(isDarkMode: boolean): void {
