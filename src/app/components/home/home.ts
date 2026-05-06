@@ -128,7 +128,12 @@ export class HomeComponent implements OnDestroy {
 
     // Check for a ?room= query param that may have been added
     const params = new URLSearchParams(window.location.search);
-    const urlRoom = sanitizeRoomCode(params.get('room') ?? '');
+    let rawUrlRoom = params.get('room') ?? '';
+    if (!rawUrlRoom) {
+      rawUrlRoom = sessionStorage.getItem('retro-pending-room') ?? '';
+    }
+    sessionStorage.removeItem('retro-pending-room');
+    const urlRoom = sanitizeRoomCode(rawUrlRoom);
 
     if (urlRoom && freshUser) {
       const activeRoom = freshRoom || this.roomCode();
@@ -158,7 +163,16 @@ export class HomeComponent implements OnDestroy {
 
   private handleRoomQueryParam(): void {
     const params = new URLSearchParams(window.location.search);
-    const room = sanitizeRoomCode(params.get('room') ?? '');
+    let rawRoom = params.get('room') ?? '';
+
+    // Angular's hash-based router may strip pre-hash query params before
+    // this component loads. Fall back to the value captured in main.ts.
+    if (!rawRoom) {
+      rawRoom = sessionStorage.getItem('retro-pending-room') ?? '';
+    }
+    sessionStorage.removeItem('retro-pending-room');
+
+    const room = sanitizeRoomCode(rawRoom);
     if (!room) return;
 
     const currentUser = this.username();

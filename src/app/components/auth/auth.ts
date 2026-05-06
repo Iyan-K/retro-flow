@@ -19,9 +19,14 @@ export class AuthComponent implements OnInit {
     }
 
     const params = new URLSearchParams(window.location.search);
-    const room = params.get('room');
-    if (room) {
-      this.roomCode.set(sanitizeRoomCode(room));
+    let rawRoom = params.get('room') ?? '';
+    // Fall back to the value captured before Angular's router stripped it
+    if (!rawRoom) {
+      rawRoom = sessionStorage.getItem('retro-pending-room') ?? '';
+    }
+    sessionStorage.removeItem('retro-pending-room');
+    if (rawRoom) {
+      this.roomCode.set(sanitizeRoomCode(rawRoom));
     }
   }
 
