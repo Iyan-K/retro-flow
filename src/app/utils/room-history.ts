@@ -81,7 +81,7 @@ export function addRoomToHistory(code: string): void {
  */
 export function updateRoomHistoryTimestamp(code: string, createdAt: number): void {
   const safe = sanitizeRoomCode(code);
-  if (!safe || !createdAt) return;
+  if (!safe || !Number.isFinite(createdAt) || createdAt <= 0) return;
 
   const entries = readRaw();
   const entry = entries.find((e) => e.code === safe);

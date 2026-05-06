@@ -61,7 +61,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   /** Sync the Firestore room creation date to the local history entry. */
   private readonly syncCreatedAt = effect(() => {
     const ts = this.retroService.roomCreatedAt();
-    if (ts) {
+    if (ts > 0) {
       updateRoomHistoryTimestamp(this.roomCode(), ts);
     }
   });
