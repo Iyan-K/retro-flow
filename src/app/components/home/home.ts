@@ -6,7 +6,10 @@ import {
   sanitizeUsername,
   sanitizeRoomCode,
 } from '../../utils/sanitize';
-import { clearRoomDeepLink, readPendingRoomCode } from '../../utils/room-deep-link';
+import {
+  clearRoomDeepLink,
+  readPendingRoomCode,
+} from '../../utils/room-deep-link';
 
 /**
  * Default route — the existing auth + board experience.
