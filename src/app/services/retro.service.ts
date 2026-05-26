@@ -470,8 +470,14 @@ export class RetroService implements OnDestroy {
    *
    * One-shot read (no realtime listener). Strategy:
    *   1. Query `rooms` where `members` array-contains the user.
-   *   2. Query collectionGroup('posts') where `inTodo == true`.
-   *   3. Keep only posts whose parent room is in the user's room set.
+   *   2. For each joined room, query its `posts` subcollection where
+   *      `inTodo == true` and merge the results.
+   *
+   * Per-room queries are used instead of a `collectionGroup('posts')`
+   * query so we don't depend on a collection-group index for `inTodo`
+   * (which has to be deployed separately and previously caused the
+   * "Mijn TODO" dialog to fail to load). It is also cheaper, since we
+   * only read posts in rooms the user is actually a member of.
    *
    * Energy-lane posts are excluded — they aren't actionable items
    * (mirroring `todoPosts`).
@@ -485,28 +491,34 @@ export class RetroService implements OnDestroy {
     const roomSnap = await getDocs(
       query(roomsRef, where('members', 'array-contains', safeUser)),
     );
-    const roomIds = new Set<string>(roomSnap.docs.map((d) => d.id));
-    if (roomIds.size === 0) return [];
+    const roomIds = roomSnap.docs.map((d) => d.id);
+    if (roomIds.length === 0) return [];
 
-    // 2. All group-TODO posts (across the whole project).
-    const postsGroup = collectionGroup(this.db, 'posts');
-    const todoSnap = await getDocs(
-      query(postsGroup, where('inTodo', '==', true)),
+    // 2. Read TODO posts from each joined room in parallel.
+    const perRoomSnaps = await Promise.all(
+      roomIds.map((roomCode) =>
+        getDocs(
+          query(
+            collection(this.db, 'rooms', roomCode, 'posts'),
+            where('inTodo', '==', true),
+          ),
+        ).then((snap) => ({ roomCode, snap })),
+      ),
     );
 
-    // 3. Filter to the user's rooms and shape the result.
+    // 3. Shape and merge the results.
     const posts: MemoryLanePost[] = [];
-    for (const d of todoSnap.docs) {
-      const roomCode = d.ref.parent.parent?.id ?? '';
-      if (!roomCode || !roomIds.has(roomCode)) continue;
-      const data = d.data() as Omit<PostIt, 'id'>;
-      if (data.lane === 'energy') continue;
-      posts.push({
-        id: d.id,
-        ...data,
-        comments: data.comments ?? [],
-        roomCode,
-      });
+    for (const { roomCode, snap } of perRoomSnaps) {
+      for (const d of snap.docs) {
+        const data = d.data() as Omit<PostIt, 'id'>;
+        if (data.lane === 'energy') continue;
+        posts.push({
+          id: d.id,
+          ...data,
+          comments: data.comments ?? [],
+          roomCode,
+        });
+      }
     }
 
     // Uncompleted items first, then by votes desc, then newest first.

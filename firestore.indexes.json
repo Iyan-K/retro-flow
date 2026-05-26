@@ -23,16 +23,6 @@
           "order": "DESCENDING"
         }
       ]
-    },
-    {
-      "collectionGroup": "posts",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        {
-          "fieldPath": "inTodo",
-          "order": "ASCENDING"
-        }
-      ]
     }
   ],
   "fieldOverrides": [
