@@ -10,6 +10,7 @@ import {
   output,
   OnInit,
   signal,
+  computed,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -45,6 +46,9 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly geleerdPosts = this.retroService.geleerdPosts;
   readonly rankedPosts = this.retroService.rankedPosts;
   readonly todoPosts = this.retroService.todoPosts;
+  readonly todoCompletedCount = computed(
+    () => this.todoPosts().filter((p) => p.todoCompleted).length,
+  );
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
@@ -244,6 +248,11 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
 
   onToggleTodo(id: string): void {
     this.retroService.toggleTodo(id);
+  }
+
+  onSetTodoCompleted(id: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.retroService.setTodoCompleted(id, checked);
   }
 
   onPrintPdf(): void {
