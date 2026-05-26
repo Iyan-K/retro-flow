@@ -18,6 +18,7 @@ import {
   orderBy,
   arrayUnion,
   arrayRemove,
+  runTransaction,
   Firestore,
   Unsubscribe,
 } from 'firebase/firestore';
@@ -352,13 +353,17 @@ export class RetroService implements OnDestroy {
     const safeText = sanitizeComment(newText);
     if (!user || !safeText || oldComment.author !== user) return;
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
-    await updateDoc(postRef, { comments: arrayRemove(oldComment) });
-    const updatedComment: PostItComment = {
-      author: oldComment.author,
-      text: safeText,
-      createdAt: oldComment.createdAt,
-    };
-    await updateDoc(postRef, { comments: arrayUnion(updatedComment) });
+    await runTransaction(this.db, async (transaction) => {
+      const snap = await transaction.get(postRef);
+      if (!snap.exists()) return;
+      const comments: PostItComment[] = snap.data()['comments'] ?? [];
+      const updated = comments.map((c) =>
+        c.author === oldComment.author && c.createdAt === oldComment.createdAt && c.text === oldComment.text
+          ? { ...c, text: safeText }
+          : c,
+      );
+      transaction.update(postRef, { comments: updated });
+    });
   }
 
   async updatePostIt(id: string, content: string): Promise<void> {
