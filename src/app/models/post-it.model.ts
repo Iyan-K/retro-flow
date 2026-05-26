@@ -19,6 +19,10 @@ export interface PostIt {
   icon?: string;
   /** Whether this post is on the shared group TODO list (visible to everyone in the room). */
   inTodo?: boolean;
+  /** Whether this TODO item has been marked completed by the group. */
+  todoCompleted?: boolean;
+  /** Username of the participant who marked the TODO item completed. */
+  todoCompletedBy?: string;
 }
 
 export interface Suggestion {

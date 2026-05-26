@@ -145,9 +145,13 @@ export class RetroService implements OnDestroy {
   readonly todoPosts = computed(() =>
     [...this.postItsSignal()]
       .filter((p) => p.inTodo && p.lane !== 'energy')
-      .sort(
-        (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
-      ),
+      .sort((a, b) => {
+        // Uncompleted items first, then by votes (most voted first).
+        const aDone = a.todoCompleted ? 1 : 0;
+        const bDone = b.todoCompleted ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        return (b.voters?.length ?? 0) - (a.voters?.length ?? 0);
+      }),
   );
 
   constructor() {
@@ -356,8 +360,35 @@ export class RetroService implements OnDestroy {
   async toggleTodo(id: string): Promise<void> {
     const post = this.postItsSignal().find((p) => p.id === id);
     if (!post) return;
+    const nextInTodo = !post.inTodo;
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
-    await updateDoc(postRef, { inTodo: !post.inTodo });
+    // When removing from the TODO list, also clear the completion state so
+    // it doesn't carry over if the item is re-added later.
+    if (!nextInTodo) {
+      await updateDoc(postRef, {
+        inTodo: false,
+        todoCompleted: false,
+        todoCompletedBy: '',
+      });
+    } else {
+      await updateDoc(postRef, { inTodo: true });
+    }
+  }
+
+  /**
+   * Mark a shared TODO item as completed (or un-complete it). The state is
+   * stored on the post document so every participant sees the same status
+   * in real-time through the existing posts listener.
+   */
+  async setTodoCompleted(id: string, completed: boolean): Promise<void> {
+    const post = this.postItsSignal().find((p) => p.id === id);
+    if (!post || !post.inTodo) return;
+    const user = sanitizeUsername(this.currentUser());
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await updateDoc(postRef, {
+      todoCompleted: completed,
+      todoCompletedBy: completed ? user : '',
+    });
   }
 
   async addSuggestion(text: string): Promise<void> {

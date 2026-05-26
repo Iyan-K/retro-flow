@@ -274,7 +274,7 @@
           <div class="flex items-center gap-2 mb-3 flex-wrap">
             <h3 class="text-lg font-bold text-slate-800">📋 Groeps-TODO</h3>
             <span class="text-xs text-slate-500">
-              {{ todoPosts().length }} item{{ todoPosts().length === 1 ? '' : 's' }}
+              {{ todoPosts().length }} item{{ todoPosts().length === 1 ? '' : 's' }}@if (todoPosts().length > 0) { · {{ todoCompletedCount() }} afgerond }
             </span>
             <span class="text-xs text-slate-500 print:hidden">
               · gedeeld met iedereen in deze sessie
@@ -290,10 +290,10 @@
                 <li class="flex items-start gap-3">
                   <input
                     type="checkbox"
-                    checked
-                    (change)="onToggleTodo(post.id)"
-                    class="mt-1 w-4 h-4 accent-purple-500 cursor-pointer print:hidden"
-                    [title]="'Verwijder van groeps-TODO'"
+                    [checked]="!!post.todoCompleted"
+                    (change)="onSetTodoCompleted(post.id, $event)"
+                    class="mt-1 w-4 h-4 accent-green-500 cursor-pointer print:hidden"
+                    [title]="post.todoCompleted ? 'Markeer als nog te doen' : 'Markeer als afgerond'"
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -305,9 +305,24 @@
                       </span>
                       <span class="text-xs text-slate-500">✍️ {{ post.authorName }}</span>
                       <span class="text-xs font-bold text-amber-600">👍 {{ post.voters.length }}</span>
+                      @if (post.todoCompleted) {
+                        <span class="text-xs font-semibold text-green-600">
+                          ✅ Afgerond@if (post.todoCompletedBy) { door {{ post.todoCompletedBy }} }
+                        </span>
+                      }
                     </div>
-                    <p class="text-slate-700 text-sm whitespace-pre-line">{{ post.content }}</p>
+                    <p
+                      class="text-sm whitespace-pre-line"
+                      [class]="post.todoCompleted ? 'text-slate-400 line-through' : 'text-slate-700'"
+                    >{{ post.content }}</p>
                   </div>
+                  <button
+                    type="button"
+                    (click)="onToggleTodo(post.id)"
+                    class="print:hidden text-slate-400 hover:text-red-500 text-lg leading-none px-1 cursor-pointer"
+                    title="Verwijder van groeps-TODO"
+                    aria-label="Verwijder van groeps-TODO"
+                  >×</button>
                 </li>
               }
             </ul>
