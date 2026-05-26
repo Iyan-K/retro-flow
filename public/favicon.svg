@@ -1,7 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect x="4" y="6" width="24" height="24" rx="3" stroke="#1e293b" stroke-width="2"/>
-  <rect x="10" y="2" width="12" height="7" rx="2" stroke="#1e293b" stroke-width="2"/>
-  <line x1="9" y1="15" x2="23" y2="15" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <line x1="9" y1="20" x2="23" y2="20" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <line x1="9" y1="25" x2="18" y2="25" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <style>
+    .icon-stroke { stroke: #1e293b; }
+    @media (prefers-color-scheme: dark) {
+      .icon-stroke { stroke: #ffffff; }
+    }
+  </style>
+  <rect class="icon-stroke" x="4" y="6" width="24" height="24" rx="3" stroke-width="2"/>
+  <rect class="icon-stroke" x="10" y="2" width="12" height="7" rx="2" stroke-width="2"/>
+  <line class="icon-stroke" x1="9" y1="15" x2="23" y2="15" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <line class="icon-stroke" x1="9" y1="20" x2="23" y2="20" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <line class="icon-stroke" x1="9" y1="25" x2="18" y2="25" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
 </svg>
