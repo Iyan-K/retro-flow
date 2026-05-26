@@ -30,6 +30,7 @@ import {
   sanitizeComment,
   sanitizeSuggestion,
 } from '../utils/sanitize';
+import { getRoomHistory } from '../utils/room-history';
 
 @Injectable({
   providedIn: 'root',
@@ -469,15 +470,22 @@ export class RetroService implements OnDestroy {
    * personal cross-room overview.
    *
    * One-shot read (no realtime listener). Strategy:
-   *   1. Query `rooms` where `members` array-contains the user.
-   *   2. For each joined room, query its `posts` subcollection where
-   *      `inTodo == true` and merge the results.
+   *   1. Collect candidate room codes from two sources and union them:
+   *        a. Firestore `rooms` where `members` array-contains the user
+   *           (covers rooms joined on other devices).
+   *        b. The local `retro-history` (covers rooms visited before the
+   *           `members` field existed, or before `joinRoom` finished).
+   *      If the Firestore rooms query fails for any reason we still fall
+   *      back to the local history so the dialog can render.
+   *   2. For each candidate room, query its `posts` subcollection where
+   *      `inTodo == true`. We use `Promise.allSettled` so a single bad
+   *      room (missing, permission-denied, transient network error)
+   *      doesn't break the entire dialog.
    *
    * Per-room queries are used instead of a `collectionGroup('posts')`
    * query so we don't depend on a collection-group index for `inTodo`
    * (which has to be deployed separately and previously caused the
-   * "Mijn TODO" dialog to fail to load). It is also cheaper, since we
-   * only read posts in rooms the user is actually a member of.
+   * "Mijn TODO" dialog to fail to load).
    *
    * Energy-lane posts are excluded — they aren't actionable items
    * (mirroring `todoPosts`).
@@ -486,16 +494,32 @@ export class RetroService implements OnDestroy {
     const safeUser = sanitizeUsername(username);
     if (!safeUser) return [];
 
-    // 1. Rooms the user has joined.
-    const roomsRef = collection(this.db, 'rooms');
-    const roomSnap = await getDocs(
-      query(roomsRef, where('members', 'array-contains', safeUser)),
-    );
-    const roomIds = roomSnap.docs.map((d) => d.id);
+    // 1a. Local room history — rooms visited from this device.
+    const localRoomIds = getRoomHistory().map((e) => e.code);
+
+    // 1b. Rooms the user is a recorded member of in Firestore. If this
+    //     query fails we still fall back to the local history rather
+    //     than throwing the whole dialog away.
+    let remoteRoomIds: string[] = [];
+    try {
+      const roomsRef = collection(this.db, 'rooms');
+      const roomSnap = await getDocs(
+        query(roomsRef, where('members', 'array-contains', safeUser)),
+      );
+      remoteRoomIds = roomSnap.docs.map((d) => d.id);
+    } catch (e) {
+      console.warn(
+        'Mijn TODO: rooms membership query failed, falling back to local room history.',
+        e,
+      );
+    }
+
+    const roomIds = Array.from(new Set([...remoteRoomIds, ...localRoomIds]));
     if (roomIds.length === 0) return [];
 
-    // 2. Read TODO posts from each joined room in parallel.
-    const perRoomSnaps = await Promise.all(
+    // 2. Read TODO posts from each candidate room. allSettled makes
+    //    the load resilient to a single failing room.
+    const perRoomResults = await Promise.allSettled(
       roomIds.map((roomCode) =>
         getDocs(
           query(
@@ -508,7 +532,12 @@ export class RetroService implements OnDestroy {
 
     // 3. Shape and merge the results.
     const posts: MemoryLanePost[] = [];
-    for (const { roomCode, snap } of perRoomSnaps) {
+    for (const result of perRoomResults) {
+      if (result.status === 'rejected') {
+        console.warn('Mijn TODO: failed to load TODOs for a room.', result.reason);
+        continue;
+      }
+      const { roomCode, snap } = result.value;
       for (const d of snap.docs) {
         const data = d.data() as Omit<PostIt, 'id'>;
         if (data.lane === 'energy') continue;
