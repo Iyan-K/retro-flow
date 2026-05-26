@@ -340,6 +340,27 @@ export class RetroService implements OnDestroy {
     await updateDoc(postRef, { comments: arrayUnion(comment) });
   }
 
+  async deleteComment(postId: string, comment: PostItComment): Promise<void> {
+    const user = sanitizeUsername(this.currentUser());
+    if (!user || comment.author !== user) return;
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
+    await updateDoc(postRef, { comments: arrayRemove(comment) });
+  }
+
+  async editComment(postId: string, oldComment: PostItComment, newText: string): Promise<void> {
+    const user = sanitizeUsername(this.currentUser());
+    const safeText = sanitizeComment(newText);
+    if (!user || !safeText || oldComment.author !== user) return;
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', postId);
+    await updateDoc(postRef, { comments: arrayRemove(oldComment) });
+    const updatedComment: PostItComment = {
+      author: oldComment.author,
+      text: safeText,
+      createdAt: oldComment.createdAt,
+    };
+    await updateDoc(postRef, { comments: arrayUnion(updatedComment) });
+  }
+
   async updatePostIt(id: string, content: string): Promise<void> {
     const safeContent = sanitizePostContent(content);
     if (!safeContent) return;
