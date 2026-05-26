@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { EnergyLaneComponent } from '../energy-lane/energy-lane';
-import { PostIt, RoomPhase } from '../../models/post-it.model';
+import { PostIt, RoomPhase, MemoryLanePost } from '../../models/post-it.model';
 import { addRoomToHistory, getRoomHistory, RoomHistoryEntry, updateRoomHistoryTimestamp } from '../../utils/room-history';
 import { sanitizeRoomCode } from '../../utils/sanitize';
 
@@ -49,6 +49,17 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly todoCompletedCount = computed(
     () => this.todoPosts().filter((p) => p.todoCompleted).length,
   );
+  /**
+   * Cross-room personal TODO list: every group-TODO item from every
+   * room the current user has been a member of. Loaded on demand when
+   * the user opens the "Mijn TODO" dialog.
+   */
+  readonly myTodoPosts = signal<MemoryLanePost[]>([]);
+  readonly myTodoLoading = signal(false);
+  readonly myTodoError = signal('');
+  readonly myTodoCompletedCount = computed(
+    () => this.myTodoPosts().filter((p) => p.todoCompleted).length,
+  );
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
@@ -64,6 +75,7 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly suggestionsOpen = signal(false);
   readonly suggestionSubmitted = signal(false);
   readonly historyOpen = signal(false);
+  readonly myTodoOpen = signal(false);
   readonly roomHistory = signal<RoomHistoryEntry[]>([]);
 
   /** Sync the Firestore room creation date to the local history entry. */
@@ -217,6 +229,76 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
 
   closeHistory(): void {
     this.historyOpen.set(false);
+  }
+
+  openMyTodo(): void {
+    this.myTodoOpen.set(true);
+    // Close the options menu so the dialog isn't hidden behind it.
+    this.optionsMenu?.nativeElement.removeAttribute('open');
+    this.loadMyTodo();
+  }
+
+  closeMyTodo(): void {
+    this.myTodoOpen.set(false);
+  }
+
+  private async loadMyTodo(): Promise<void> {
+    this.myTodoLoading.set(true);
+    this.myTodoError.set('');
+    try {
+      const results = await this.retroService.getUserTodos(this.username());
+      this.myTodoPosts.set(results);
+    } catch (e) {
+      console.error('Failed to load personal TODO list:', e);
+      this.myTodoError.set(
+        'Het laden van je TODO-lijst is niet gelukt. Probeer het later opnieuw.',
+      );
+    } finally {
+      this.myTodoLoading.set(false);
+    }
+  }
+
+  async onSetMyTodoCompleted(
+    post: MemoryLanePost,
+    event: Event,
+  ): Promise<void> {
+    const completed = (event.target as HTMLInputElement).checked;
+    // Optimistic local update so the dialog reflects the change immediately.
+    this.myTodoPosts.update((list) =>
+      list.map((p) =>
+        p.id === post.id && p.roomCode === post.roomCode
+          ? {
+              ...p,
+              todoCompleted: completed,
+              todoCompletedBy: completed ? this.username() : '',
+            }
+          : p,
+      ),
+    );
+    try {
+      await this.retroService.setTodoCompletedAt(
+        post.roomCode,
+        post.id,
+        completed,
+      );
+    } catch (e) {
+      console.error('Failed to update TODO completion:', e);
+      // Reload from Firestore to revert any failed optimistic change.
+      this.loadMyTodo();
+    }
+  }
+
+  async onRemoveMyTodo(post: MemoryLanePost): Promise<void> {
+    // Optimistically drop the row from the dialog.
+    this.myTodoPosts.update((list) =>
+      list.filter((p) => !(p.id === post.id && p.roomCode === post.roomCode)),
+    );
+    try {
+      await this.retroService.removeFromTodoAt(post.roomCode, post.id);
+    } catch (e) {
+      console.error('Failed to remove TODO item:', e);
+      this.loadMyTodo();
+    }
   }
 
   goToRoom(code: string): void {

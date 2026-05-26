@@ -162,6 +162,13 @@
           </button>
           <button
             type="button"
+            (click)="openMyTodo()"
+            class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
+          >
+            📋 Mijn TODO
+          </button>
+          <button
+            type="button"
             (click)="openHistory()"
             class="text-left rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-white/60 transition-all"
           >
@@ -548,6 +555,85 @@
                     <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Fullscreen personal TODO dialog -->
+  @if (myTodoOpen()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="glass-card rounded-2xl p-8 w-full max-w-lg mx-4 shadow-2xl max-h-[80vh] flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-xl font-bold text-slate-800">📋 Mijn TODO</h2>
+          <button
+            (click)="closeMyTodo()"
+            class="w-8 h-8 rounded-full hover:bg-white/60 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all text-lg"
+            aria-label="Sluiten"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">
+          @if (myTodoLoading()) {
+            Laden…
+          } @else {
+            {{ myTodoPosts().length }} item{{ myTodoPosts().length === 1 ? '' : 's' }}@if (myTodoPosts().length > 0) { · {{ myTodoCompletedCount() }} afgerond } · uit alle kamers waar je lid van was
+          }
+        </p>
+        @if (myTodoError()) {
+          <p class="text-sm text-red-600 italic text-center py-4">{{ myTodoError() }}</p>
+        }
+        @if (!myTodoLoading() && !myTodoError() && myTodoPosts().length === 0) {
+          <p class="text-sm text-slate-500 italic text-center py-8">
+            Nog geen TODO-items in de kamers waar je lid van bent. Vink een kaart aan in de rangschikking om hem toe te voegen.
+          </p>
+        }
+        @if (myTodoPosts().length > 0) {
+          <ul class="flex-1 overflow-y-auto space-y-2 pr-1">
+            @for (post of myTodoPosts(); track post.roomCode + '/' + post.id) {
+              <li class="flex items-start gap-3 bg-white/40 border border-white/60 rounded-xl px-3 py-2">
+                <input
+                  type="checkbox"
+                  [checked]="!!post.todoCompleted"
+                  (change)="onSetMyTodoCompleted(post, $event)"
+                  class="mt-1 w-4 h-4 accent-green-500 cursor-pointer"
+                  [title]="post.todoCompleted ? 'Markeer als nog te doen' : 'Markeer als afgerond'"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span
+                      class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                      [class]="getLaneBadgeColor(post.lane)"
+                    >
+                      {{ getLaneBadge(post.lane) }}
+                    </span>
+                    <span class="text-[10px] font-mono font-bold text-purple-600" title="Kamer">
+                      🚪 {{ post.roomCode }}
+                    </span>
+                    <span class="text-xs text-slate-500">✍️ {{ post.authorName }}</span>
+                    <span class="text-xs font-bold text-amber-600">👍 {{ post.voters.length }}</span>
+                    @if (post.todoCompleted) {
+                      <span class="text-xs font-semibold text-green-600">
+                        ✅ Afgerond@if (post.todoCompletedBy) { door {{ post.todoCompletedBy }} }
+                      </span>
+                    }
+                  </div>
+                  <p
+                    class="text-sm whitespace-pre-line"
+                    [class]="post.todoCompleted ? 'text-slate-400 line-through' : 'text-slate-700'"
+                  >{{ post.content }}</p>
+                </div>
+                <button
+                  type="button"
+                  (click)="onRemoveMyTodo(post)"
+                  class="text-slate-400 hover:text-red-500 text-lg leading-none px-1 cursor-pointer"
+                  title="Verwijder van groeps-TODO"
+                  aria-label="Verwijder van groeps-TODO"
+                >×</button>
               </li>
             }
           </ul>

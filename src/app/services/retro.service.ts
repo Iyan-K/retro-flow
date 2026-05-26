@@ -463,6 +463,99 @@ export class RetroService implements OnDestroy {
     return posts;
   }
 
+  /**
+   * Returns every group-TODO item from every room the given user has
+   * been a member of. Used by the board "Mijn TODO" menu to give a
+   * personal cross-room overview.
+   *
+   * One-shot read (no realtime listener). Strategy:
+   *   1. Query `rooms` where `members` array-contains the user.
+   *   2. Query collectionGroup('posts') where `inTodo == true`.
+   *   3. Keep only posts whose parent room is in the user's room set.
+   *
+   * Energy-lane posts are excluded — they aren't actionable items
+   * (mirroring `todoPosts`).
+   */
+  async getUserTodos(username: string): Promise<MemoryLanePost[]> {
+    const safeUser = sanitizeUsername(username);
+    if (!safeUser) return [];
+
+    // 1. Rooms the user has joined.
+    const roomsRef = collection(this.db, 'rooms');
+    const roomSnap = await getDocs(
+      query(roomsRef, where('members', 'array-contains', safeUser)),
+    );
+    const roomIds = new Set<string>(roomSnap.docs.map((d) => d.id));
+    if (roomIds.size === 0) return [];
+
+    // 2. All group-TODO posts (across the whole project).
+    const postsGroup = collectionGroup(this.db, 'posts');
+    const todoSnap = await getDocs(
+      query(postsGroup, where('inTodo', '==', true)),
+    );
+
+    // 3. Filter to the user's rooms and shape the result.
+    const posts: MemoryLanePost[] = [];
+    for (const d of todoSnap.docs) {
+      const roomCode = d.ref.parent.parent?.id ?? '';
+      if (!roomCode || !roomIds.has(roomCode)) continue;
+      const data = d.data() as Omit<PostIt, 'id'>;
+      if (data.lane === 'energy') continue;
+      posts.push({
+        id: d.id,
+        ...data,
+        comments: data.comments ?? [],
+        roomCode,
+      });
+    }
+
+    // Uncompleted items first, then by votes desc, then newest first.
+    posts.sort((a, b) => {
+      const aDone = a.todoCompleted ? 1 : 0;
+      const bDone = b.todoCompleted ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+      const voteDiff =
+        (b.voters?.length ?? 0) - (a.voters?.length ?? 0);
+      if (voteDiff !== 0) return voteDiff;
+      return (b.createdAt ?? 0) - (a.createdAt ?? 0);
+    });
+    return posts;
+  }
+
+  /**
+   * Mark a TODO completed in any room (not necessarily the currently
+   * listened-to one). Used by the cross-room "Mijn TODO" dialog.
+   */
+  async setTodoCompletedAt(
+    roomCode: string,
+    postId: string,
+    completed: boolean,
+  ): Promise<void> {
+    const safeRoom = sanitizeRoomCode(roomCode);
+    if (!safeRoom || !postId) return;
+    const user = sanitizeUsername(this.currentUser());
+    const postRef = doc(this.db, 'rooms', safeRoom, 'posts', postId);
+    await updateDoc(postRef, {
+      todoCompleted: completed,
+      todoCompletedBy: completed ? user : '',
+    });
+  }
+
+  /**
+   * Remove a post from the shared group TODO in any room. Used by the
+   * cross-room "Mijn TODO" dialog.
+   */
+  async removeFromTodoAt(roomCode: string, postId: string): Promise<void> {
+    const safeRoom = sanitizeRoomCode(roomCode);
+    if (!safeRoom || !postId) return;
+    const postRef = doc(this.db, 'rooms', safeRoom, 'posts', postId);
+    await updateDoc(postRef, {
+      inTodo: false,
+      todoCompleted: false,
+      todoCompletedBy: '',
+    });
+  }
+
   stopListening(): void {
     if (this.unsubPosts) {
       this.unsubPosts();
