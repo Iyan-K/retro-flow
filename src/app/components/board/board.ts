@@ -246,7 +246,15 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     this.myTodoLoading.set(true);
     this.myTodoError.set('');
     try {
-      const results = await this.retroService.getUserTodos(this.username());
+      // Pass the device's local room history as a fallback list so
+      // rooms predating the server-side `members` array are still
+      // searched. Without this, users who joined rooms in older
+      // versions of the app saw an empty list or an error toast.
+      const historyCodes = getRoomHistory().map((e) => e.code);
+      const results = await this.retroService.getUserTodos(
+        this.username(),
+        historyCodes,
+      );
       this.myTodoPosts.set(results);
     } catch (e) {
       console.error('Failed to load personal TODO list:', e);

@@ -469,8 +469,15 @@ export class RetroService implements OnDestroy {
    * personal cross-room overview.
    *
    * One-shot read (no realtime listener). Strategy:
-   *   1. Query `rooms` where `members` array-contains the user.
-   *   2. For each joined room, query its `posts` subcollection where
+   *   1. Collect candidate room codes from two sources and merge them:
+   *      a. `rooms` where `members` array-contains the user (server truth).
+   *      b. An optional `extraRoomCodes` list passed by the caller
+   *         (typically the device's local room history).
+   *      The local-history fallback is important because rooms joined
+   *      before the `members` field existed — or rooms where the
+   *      `joinRoom` write silently failed — will not appear in the
+   *      server query, leaving the user with an empty or failing list.
+   *   2. For each candidate room, query its `posts` subcollection where
    *      `inTodo == true` and merge the results.
    *
    * Per-room queries are used instead of a `collectionGroup('posts')`
@@ -479,23 +486,46 @@ export class RetroService implements OnDestroy {
    * "Mijn TODO" dialog to fail to load). It is also cheaper, since we
    * only read posts in rooms the user is actually a member of.
    *
+   * Individual per-room reads that fail (network, missing doc, etc.)
+   * are logged and skipped via `Promise.allSettled` so a single broken
+   * room cannot abort the entire load with an error toast.
+   *
    * Energy-lane posts are excluded — they aren't actionable items
    * (mirroring `todoPosts`).
    */
-  async getUserTodos(username: string): Promise<MemoryLanePost[]> {
+  async getUserTodos(
+    username: string,
+    extraRoomCodes: readonly string[] = [],
+  ): Promise<MemoryLanePost[]> {
     const safeUser = sanitizeUsername(username);
     if (!safeUser) return [];
 
-    // 1. Rooms the user has joined.
+    // 1a. Rooms the user is recorded as a member of on the server.
     const roomsRef = collection(this.db, 'rooms');
     const roomSnap = await getDocs(
       query(roomsRef, where('members', 'array-contains', safeUser)),
     );
-    const roomIds = roomSnap.docs.map((d) => d.id);
+
+    // 1b. Merge with any caller-supplied room codes (local history) so
+    //     rooms predating the `members` field, or rooms where the
+    //     `joinRoom` write never landed, are still searched.
+    const roomIdSet = new Set<string>();
+    for (const d of roomSnap.docs) {
+      const id = sanitizeRoomCode(d.id);
+      if (id) roomIdSet.add(id);
+    }
+    for (const code of extraRoomCodes) {
+      const safe = sanitizeRoomCode(code);
+      if (safe) roomIdSet.add(safe);
+    }
+    const roomIds = Array.from(roomIdSet);
     if (roomIds.length === 0) return [];
 
-    // 2. Read TODO posts from each joined room in parallel.
-    const perRoomSnaps = await Promise.all(
+    // 2. Read TODO posts from each candidate room in parallel. Use
+    //    allSettled so a single failed room doesn't sink the whole
+    //    request — empty rooms (or rooms the user no longer has access
+    //    to) are simply skipped.
+    const perRoomResults = await Promise.allSettled(
       roomIds.map((roomCode) =>
         getDocs(
           query(
@@ -508,7 +538,12 @@ export class RetroService implements OnDestroy {
 
     // 3. Shape and merge the results.
     const posts: MemoryLanePost[] = [];
-    for (const { roomCode, snap } of perRoomSnaps) {
+    for (const result of perRoomResults) {
+      if (result.status === 'rejected') {
+        console.warn('Skipping room while loading Mijn TODO:', result.reason);
+        continue;
+      }
+      const { roomCode, snap } = result.value;
       for (const d of snap.docs) {
         const data = d.data() as Omit<PostIt, 'id'>;
         if (data.lane === 'energy') continue;
