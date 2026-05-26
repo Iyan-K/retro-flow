@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { RetroService } from '../../services/retro.service';
 import { LaneComponent } from '../lane/lane';
 import { EnergyLaneComponent } from '../energy-lane/energy-lane';
-import { PostIt, RoomPhase, MemoryLanePost } from '../../models/post-it.model';
+import { PostIt, PostItComment, RoomPhase, MemoryLanePost } from '../../models/post-it.model';
 import { addRoomToHistory, getRoomHistory, RoomHistoryEntry, updateRoomHistoryTimestamp } from '../../utils/room-history';
 import { sanitizeRoomCode } from '../../utils/sanitize';
 
@@ -77,6 +77,10 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly historyOpen = signal(false);
   readonly myTodoOpen = signal(false);
   readonly roomHistory = signal<RoomHistoryEntry[]>([]);
+
+  /** Track which comment is currently being edited: "postId::createdAt" */
+  readonly editingCommentKey = signal('');
+  editingCommentText = '';
 
   /** Sync the Firestore room creation date to the local history entry. */
   private readonly syncCreatedAt = effect(() => {
@@ -334,6 +338,33 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     if (!text.trim()) return;
     inputEl.value = '';
     this.retroService.addComment(postId, text);
+  }
+
+  onDeleteComment(postId: string, comment: PostItComment): void {
+    this.retroService.deleteComment(postId, comment);
+  }
+
+  onStartEditComment(postId: string, comment: PostItComment): void {
+    this.editingCommentKey.set(`${postId}::${comment.createdAt}`);
+    this.editingCommentText = comment.text;
+  }
+
+  onCancelEditComment(): void {
+    this.editingCommentKey.set('');
+    this.editingCommentText = '';
+  }
+
+  onSaveEditComment(postId: string, comment: PostItComment): void {
+    const newText = this.editingCommentText.trim();
+    if (newText && newText !== comment.text) {
+      this.retroService.editComment(postId, comment, newText);
+    }
+    this.editingCommentKey.set('');
+    this.editingCommentText = '';
+  }
+
+  isEditingComment(postId: string, comment: PostItComment): boolean {
+    return this.editingCommentKey() === `${postId}::${comment.createdAt}`;
   }
 
   onToggleTodo(id: string): void {
