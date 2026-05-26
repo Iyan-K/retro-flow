@@ -137,6 +137,19 @@ export class RetroService implements OnDestroy {
       ),
   );
 
+  /**
+   * Posts that have been added to the shared group TODO list.
+   * Energy-lane posts are excluded — they aren't actionable items.
+   * Ordered by vote count (most voted first) to mirror the ranking view.
+   */
+  readonly todoPosts = computed(() =>
+    [...this.postItsSignal()]
+      .filter((p) => p.inTodo && p.lane !== 'energy')
+      .sort(
+        (a, b) => (b.voters?.length ?? 0) - (a.voters?.length ?? 0),
+      ),
+  );
+
   constructor() {
     this.app = initializeApp(environment.firebase);
     this.db = initializeFirestore(this.app, {
@@ -333,6 +346,18 @@ export class RetroService implements OnDestroy {
   async deletePostIt(id: string): Promise<void> {
     const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
     await deleteDoc(postRef);
+  }
+
+  /**
+   * Toggle whether a post belongs to the shared group TODO list.
+   * The flag lives on the post document so every participant sees the
+   * same TODO list in real-time through the existing posts listener.
+   */
+  async toggleTodo(id: string): Promise<void> {
+    const post = this.postItsSignal().find((p) => p.id === id);
+    if (!post) return;
+    const postRef = doc(this.db, 'rooms', this.roomId, 'posts', id);
+    await updateDoc(postRef, { inTodo: !post.inTodo });
   }
 
   async addSuggestion(text: string): Promise<void> {

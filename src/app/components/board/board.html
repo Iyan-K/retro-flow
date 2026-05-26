@@ -200,6 +200,18 @@
                   </span>
                   <span class="text-xs text-slate-500">✍️ {{ post.authorName }}</span>
                   <span class="text-xs font-bold text-amber-600">👍 {{ post.voters.length }} stemmen</span>
+                  <label
+                    class="ml-auto flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none print:hidden"
+                    [title]="post.inTodo ? 'Verwijder van groeps-TODO' : 'Voeg toe aan groeps-TODO'"
+                  >
+                    <input
+                      type="checkbox"
+                      [checked]="!!post.inTodo"
+                      (change)="onToggleTodo(post.id)"
+                      class="w-4 h-4 accent-purple-500 cursor-pointer"
+                    />
+                    📋 Op TODO
+                  </label>
                 </div>
                 <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{{ post.content }}</p>
                 @if (post.icon) {
@@ -256,6 +268,51 @@
         @if (rankedPosts().length === 0) {
           <p class="text-slate-400 text-center text-sm italic py-8">Geen notities om te rangschikken.</p>
         }
+
+        <!-- Shared Group TODO list -->
+        <section class="glass-card rounded-2xl p-5 mt-8" id="group-todo">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
+            <h3 class="text-lg font-bold text-slate-800">📋 Groeps-TODO</h3>
+            <span class="text-xs text-slate-500">
+              {{ todoPosts().length }} item{{ todoPosts().length === 1 ? '' : 's' }}
+            </span>
+            <span class="text-xs text-slate-500 print:hidden">
+              · gedeeld met iedereen in deze sessie
+            </span>
+          </div>
+          @if (todoPosts().length === 0) {
+            <p class="text-slate-400 text-sm italic">
+              Nog geen items op de TODO. Vink een kaart hierboven aan om hem toe te voegen.
+            </p>
+          } @else {
+            <ul class="space-y-2">
+              @for (post of todoPosts(); track post.id) {
+                <li class="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked
+                    (change)="onToggleTodo(post.id)"
+                    class="mt-1 w-4 h-4 accent-purple-500 cursor-pointer print:hidden"
+                    [title]="'Verwijder van groeps-TODO'"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                      <span
+                        class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                        [class]="getLaneBadgeColor(post.lane)"
+                      >
+                        {{ getLaneBadge(post.lane) }}
+                      </span>
+                      <span class="text-xs text-slate-500">✍️ {{ post.authorName }}</span>
+                      <span class="text-xs font-bold text-amber-600">👍 {{ post.voters.length }}</span>
+                    </div>
+                    <p class="text-slate-700 text-sm whitespace-pre-line">{{ post.content }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </section>
       </div>
     } @else {
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
