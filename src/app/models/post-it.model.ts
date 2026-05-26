@@ -17,6 +17,8 @@ export interface PostIt {
   createdAt: number;
   energyLevel?: number;
   icon?: string;
+  /** Whether this post is on the shared group TODO list (visible to everyone in the room). */
+  inTodo?: boolean;
 }
 
 export interface Suggestion {

@@ -44,6 +44,7 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly energyPosts = this.retroService.energyPosts;
   readonly geleerdPosts = this.retroService.geleerdPosts;
   readonly rankedPosts = this.retroService.rankedPosts;
+  readonly todoPosts = this.retroService.todoPosts;
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
@@ -239,6 +240,10 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     if (!text.trim()) return;
     inputEl.value = '';
     this.retroService.addComment(postId, text);
+  }
+
+  onToggleTodo(id: string): void {
+    this.retroService.toggleTodo(id);
   }
 
   onPrintPdf(): void {
