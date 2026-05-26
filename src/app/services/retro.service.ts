@@ -492,6 +492,12 @@ export class RetroService implements OnDestroy {
    *
    * Energy-lane posts are excluded — they aren't actionable items
    * (mirroring `todoPosts`).
+   *
+   * @param username Display name of the user whose TODOs to fetch.
+   * @param extraRoomCodes Optional list of additional room codes to
+   *   search (typically the device's local room history). They are
+   *   sanitized and merged with the rooms returned by the `members`
+   *   query, so rooms predating the `members` field still surface.
    */
   async getUserTodos(
     username: string,
@@ -524,7 +530,8 @@ export class RetroService implements OnDestroy {
     // 2. Read TODO posts from each candidate room in parallel. Use
     //    allSettled so a single failed room doesn't sink the whole
     //    request — empty rooms (or rooms the user no longer has access
-    //    to) are simply skipped.
+    //    to) are simply skipped. Rejections are tagged with the room
+    //    code so warnings identify which room failed.
     const perRoomResults = await Promise.allSettled(
       roomIds.map((roomCode) =>
         getDocs(
@@ -532,7 +539,12 @@ export class RetroService implements OnDestroy {
             collection(this.db, 'rooms', roomCode, 'posts'),
             where('inTodo', '==', true),
           ),
-        ).then((snap) => ({ roomCode, snap })),
+        ).then(
+          (snap) => ({ roomCode, snap }),
+          (err) => {
+            throw { roomCode, err };
+          },
+        ),
       ),
     );
 
@@ -540,7 +552,11 @@ export class RetroService implements OnDestroy {
     const posts: MemoryLanePost[] = [];
     for (const result of perRoomResults) {
       if (result.status === 'rejected') {
-        console.warn('Skipping room while loading Mijn TODO:', result.reason);
+        const reason = result.reason as { roomCode?: string; err?: unknown };
+        console.warn(
+          `Skipping room ${reason?.roomCode ?? '(unknown)'} while loading Mijn TODO:`,
+          reason?.err ?? result.reason,
+        );
         continue;
       }
       const { roomCode, snap } = result.value;
