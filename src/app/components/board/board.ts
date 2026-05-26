@@ -49,6 +49,13 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly todoCompletedCount = computed(
     () => this.todoPosts().filter((p) => p.todoCompleted).length,
   );
+  /** Subset of the group TODO that was authored by the current user. */
+  readonly myTodoPosts = computed(() =>
+    this.todoPosts().filter((p) => p.authorName === this.username()),
+  );
+  readonly myTodoCompletedCount = computed(
+    () => this.myTodoPosts().filter((p) => p.todoCompleted).length,
+  );
   readonly uniqueAuthors = this.retroService.uniqueAuthors;
   readonly filterAuthor = this.retroService.filterAuthor;
   readonly isOwner = this.retroService.isOwner;
@@ -64,6 +71,7 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   readonly suggestionsOpen = signal(false);
   readonly suggestionSubmitted = signal(false);
   readonly historyOpen = signal(false);
+  readonly myTodoOpen = signal(false);
   readonly roomHistory = signal<RoomHistoryEntry[]>([]);
 
   /** Sync the Firestore room creation date to the local history entry. */
@@ -217,6 +225,16 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
 
   closeHistory(): void {
     this.historyOpen.set(false);
+  }
+
+  openMyTodo(): void {
+    this.myTodoOpen.set(true);
+    // Close the options menu so the dialog isn't hidden behind it.
+    this.optionsMenu?.nativeElement.removeAttribute('open');
+  }
+
+  closeMyTodo(): void {
+    this.myTodoOpen.set(false);
   }
 
   goToRoom(code: string): void {
